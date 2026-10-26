@@ -46,3 +46,6 @@ __pycache__/
 # documents commerciaux (conservés hors du dépôt)
 /output/
 /tmp/
+
+/lib/generated/prisma
+!.env.example

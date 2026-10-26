@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// OWNER : administrateur principal, peut gérer les autres comptes.
+// ADMIN : consulte tout le panneau, sans gérer les comptes.
+enum AdminRole {
+  OWNER
+  ADMIN
+}
+
+// Compte autorisé à se connecter au panneau d'administration.
+model Admin {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  role         AdminRole @default(ADMIN)
+  // Un compte désactivé ne peut plus se connecter et ses sessions sont coupées.
+  disabledAt   DateTime?
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Null pour le compte créé en ligne de commande ou par l'administrateur du .env.
+  createdById   String?
+  createdBy     Admin?  @relation("AdminCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAdmins Admin[] @relation("AdminCreatedBy")
+
+  @@map("admins")
+}
+
+// Demande envoyée depuis le formulaire de contact du site.
+model ContactRequest {
+  id        String    @id @default(cuid())
+  firstName String
+  lastName  String
+  position  String?
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([createdAt])
+  @@map("contact_requests")
+}
