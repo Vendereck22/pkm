@@ -19,10 +19,10 @@ const french: Record<string, string> = {
   "Law in the service of": "Le droit au service des", "Congolese projects.": "projets congolais.",
   "Cabinet PKM advises and defends companies, investors and brand owners in the Democratic Republic of the Congo: business law, mining and quarries, intellectual property.": "Le Cabinet PKM conseille et défend les entreprises, les investisseurs et les titulaires de marques en République démocratique du Congo : droit des affaires, mines et carrières, propriété intellectuelle.",
   "Lawyer, advice and litigation": "Avocat, conseil et contentieux", "Three professions, one point of contact": "Trois métiers, un seul interlocuteur",
-  "Lawyer:": "Avocat :", " business advice and litigation": " conseil aux entreprises et contentieux",
-  "Mining and quarry agent:": "Mandataire en mines et carrières :", " titles and procedures": " titres et démarches",
-  "Trademark and IP agent:": "Mandataire en marques et PI :", " protection and defence": " protection et défense",
-  "Our expertise": "Notre expertise", "Ce que nous faisons": "Notre expertise",
+  "Lawyer:": "Avocat :", "business advice and litigation": "conseil aux entreprises et contentieux",
+  "Mining and quarry agent:": "Mandataire en mines et carrières :", "titles and procedures": "titres et démarches",
+  "Trademark and IP agent:": "Mandataire en marques et PI :", "protection and defence": "protection et défense",
+  "What we do": "Ce que nous faisons", "Our expertise": "Notre expertise",
   "Each case is handled by a lawyer who knows the law, the administrations and the field, in Kinshasa or in Lubumbashi.": "Chaque dossier est suivi par un avocat qui connaît le droit, les administrations et le terrain, à Kinshasa comme à Lubumbashi.",
   Lawyer: "Avocat", "Business law and litigation": "Droit des affaires et contentieux",
   "We support Congolese and foreign companies in structuring their activities and securing their commercial relationships, in court and at the negotiating table.": "Nous accompagnons les entreprises congolaises et étrangères dans la structuration de leurs activités et la sécurisation de leurs relations commerciales, au tribunal comme à la table des négociations.",
@@ -32,24 +32,44 @@ const french: Record<string, string> = {
   "Applications and renewals of mining and quarry titles": "Demandes et renouvellements de titres miniers et de carrières", "Follow-up files at the Mining Registry and public services": "Suivi des dossiers au Cadastre minier et auprès des services publics", "Legal audit of titles before acquisition or financing": "Audit juridique des titres avant acquisition ou financement", "Mining Code compliance, subcontracting and transfer agreements": "Conformité au Code minier, sous-traitance et accords de cession",
   "Trademark and IP agent": "Mandataire en marques et propriété intellectuelle", "Trademarks and intangible assets": "Marques et actifs immatériels",
   "Your name, your logo and your creations are assets. We register, monitor and defend them.": "Votre nom, votre logo et vos créations sont des actifs. Nous les enregistrons, les surveillons et les défendons.", "Prior-rights searches, trademark filing and registration": "Recherche d’antériorités, dépôt et enregistrement de marques", "Renewal, assignment and licensing": "Renouvellement, cession et licence", "Oppositions and counterfeiting actions": "Oppositions et actions en contrefaçon", "Copyright and protection of creative works": "Droit d’auteur et protection des œuvres",
-  "À qui nous nous adressons": "Nos clients", "Who we work with": "Nos clients", "Operators with a concrete project who need reliable legal advice to move it forward.": "Des opérateurs avec un projet concret qui ont besoin de conseils juridiques fiables pour avancer.",
+  "Who we serve": "À qui nous nous adressons", "Who we work with": "Nos clients", "Operators with a concrete project who need reliable legal advice to move it forward.": "Des opérateurs avec un projet concret qui ont besoin de conseils juridiques fiables pour avancer.",
   "Mining companies and subcontractors": "Sociétés minières et sous-traitants", "Title holders, investors, traders and service providers in the mining sector of Haut-Katanga and beyond.": "Titulaires de titres, investisseurs, négociants et prestataires du secteur minier du Haut-Katanga et d’ailleurs.", "Foreign investors and companies": "Investisseurs et entreprises étrangers", "Groups setting up in the DRC that want to structure their presence, contracts and risks.": "Groupes qui s’implantent en RDC et souhaitent structurer leur présence, leurs contrats et leurs risques.", "SMEs, entrepreneurs and creators": "PME, entrepreneurs et créateurs", "Traders, local brands, artists and start-ups who want to protect their name and creations.": "Commerçants, marques locales, artistes et jeunes entreprises qui veulent protéger leur nom et leurs créations.",
-  "Notre méthode": "Notre méthode", "How we work": "Notre méthode", "A clear approach, with an identified contact at every stage.": "Une démarche claire, avec un interlocuteur identifié à chaque étape.", Listening: "Écoute", "A first conversation to understand your situation, deadlines and stakes.": "Un premier échange pour comprendre votre situation, vos délais et vos enjeux.", Analysis: "Analyse", "Review of the texts, documents and risks, then presentation of the options.": "Étude des textes, des documents et des risques, puis présentation des options.", Strategy: "Stratégie", "A roadmap agreed with you, and fees announced in advance.": "Une feuille de route définie avec vous et des honoraires annoncés à l’avance.", "Follow-up": "Suivi", "Execution of the procedures, regular reporting and support through to the outcome.": "Mise en œuvre des démarches, comptes rendus réguliers et accompagnement jusqu’à leur aboutissement.",
+  "Our method": "Notre méthode", "How we work": "Comment nous travaillons", "A clear approach, with an identified contact at every stage.": "Une démarche claire, avec un interlocuteur identifié à chaque étape.", Listening: "Écoute", "A first conversation to understand your situation, deadlines and stakes.": "Un premier échange pour comprendre votre situation, vos délais et vos enjeux.", Analysis: "Analyse", "Review of the texts, documents and risks, then presentation of the options.": "Étude des textes, des documents et des risques, puis présentation des options.", Strategy: "Stratégie", "A roadmap agreed with you, and fees announced in advance.": "Une feuille de route définie avec vous et des honoraires annoncés à l’avance.", "Follow-up": "Suivi", "Execution of the procedures, regular reporting and support through to the outcome.": "Mise en œuvre des démarches, comptes rendus réguliers et accompagnement jusqu’à leur aboutissement.",
   "Portrait to be added": "Portrait à ajouter", "Attorney": "Avocat",
-  "Lawyer, mining and quarry agent and trademark and intellectual property agent, he founded Cabinet PKM with offices in Lubumbashi and Kinshasa.": "Avocat, mandataire en mines et carrières et mandataire en marques et propriété intellectuelle, il a fondé le Cabinet PKM, présent à Lubumbashi et à Kinshasa.", "His practice connects business law to two areas that matter greatly in the DRC: mineral resources and brand value.": "Sa pratique relie le droit des affaires à deux enjeux majeurs en RDC : les ressources minérales et la valeur des marques.", "Recognition.": "Distinction.", " Pierre Kasongo is ranked in the Chambers Global Guide 2025 for general business law in the DRC (Band 2).": " Pierre Kasongo figure dans le Chambers Global Guide 2025 en droit général des affaires en RDC (Band 2).",
-  "Ancrage local": "Notre présence", "Two offices, one team": "Deux bureaux, une équipe", Kinshasa: "Kinshasa", Lubumbashi: "Lubumbashi", "Administrative and judicial seat; courts, ministries and institutional partners.": "Siège administratif et judiciaire ; tribunaux, ministères et partenaires institutionnels.", "In the heart of the mining province: titles, operators and subcontractors of Haut-Katanga.": "Au cœur de la province minière : titres, opérateurs et sous-traitants du Haut-Katanga.",
-  "Questions fréquentes": "Questions fréquentes", "Frequently asked questions": "Questions fréquentes", "Why register a trademark in the DRC?": "Pourquoi enregistrer une marque en RDC?", "Registration helps establish rights to your brand and gives you legal tools to oppose unauthorised use and counterfeiting.": "L’enregistrement établit vos droits sur votre marque et vous donne des moyens juridiques pour vous opposer aux usages non autorisés et à la contrefaçon.", "How are your fees calculated?": "Comment vos honoraires sont-ils calculés?", "Fees depend on the nature, complexity and urgency of the matter. We discuss the scope and fee arrangements with you before starting work.": "Les honoraires dépendent de la nature, de la complexité et de l’urgence du dossier. Nous convenons avec vous de la mission et des honoraires avant de commencer.", "Do you act for foreign clients?": "Travaillez-vous pour des clients étrangers?", "Yes. We advise foreign investors and companies entering the DRC, including on local structures, contracts, compliance and disputes.": "Oui. Nous conseillons les investisseurs et entreprises étrangers qui s’implantent en RDC, notamment sur les structures locales, les contrats, la conformité et les litiges.", "Are my exchanges with the firm confidential?": "Mes échanges avec le cabinet sont-ils confidentiels?", "Professional secrecy and confidentiality apply to our work in accordance with the rules governing the profession.": "Le secret professionnel et la confidentialité s’appliquent à notre travail conformément aux règles de la profession.",
-  "Parlons de votre projet": "Parlons de votre projet", "Let's discuss your case": "Parlons de votre dossier", "Describe your need in a few lines. The firm will get back to you to arrange a first conversation.": "Décrivez votre besoin en quelques lignes. Le cabinet vous recontactera pour organiser un premier échange.", "Offices in Kinshasa and Lubumbashi": "Bureaux à Kinshasa et Lubumbashi", "Reply within two working days": "Réponse sous deux jours ouvrés", "Exchanges covered by professional secrecy": "Échanges couverts par le secret professionnel", "Full name": "Nom complet", Phone: "Téléphone", "Email address": "Adresse e-mail", Subject: "Sujet", "Business law / litigation": "Droit des affaires / contentieux", "Trademarks and intellectual property": "Marques et propriété intellectuelle", "Other request": "Autre demande", "Your message": "Votre message", "Send my request": "Envoyer ma demande", "This form opens your email app with the message pre-filled. It is not a legal consultation.": "Ce formulaire ouvre votre messagerie avec le message prérempli. Il ne constitue pas une consultation juridique.",
-  "Cabinet PKM": "Cabinet PKM", "Lawyers, mining and quarry agent, trademark and intellectual property agent.": "Avocats, mandataires en mines et carrières, marques et propriété intellectuelle.", "Kinshasa and Lubumbashi, Democratic Republic of the Congo.": "Kinshasa et Lubumbashi, République démocratique du Congo.", Contact: "Contact", "The information on this site is general in nature and does not replace personalised legal advice.": "Les informations de ce site sont générales et ne remplacent pas un conseil juridique personnalisé.", "Any questions?": "Une question?",
+  "Lawyer, mining and quarry agent and trademark and intellectual property agent, he founded Cabinet PKM with offices in Lubumbashi and Kinshasa.": "Avocat, mandataire en mines et carrières et mandataire en marques et propriété intellectuelle, il a fondé le Cabinet PKM, présent à Lubumbashi et à Kinshasa.", "His practice connects business law to two areas that matter greatly in the DRC: mineral resources and brand value.": "Sa pratique relie le droit des affaires à deux enjeux majeurs en RDC : les ressources minérales et la valeur des marques.", "Recognition.": "Distinction.", "Pierre Kasongo is ranked in the Chambers Global Guide 2025 for general business law in the DRC (Band 2).": "Pierre Kasongo figure dans le Chambers Global Guide 2025 en droit général des affaires en RDC (Band 2).",
+  "Local presence": "Ancrage local", "Two offices, one team": "Deux bureaux, une équipe", Kinshasa: "Kinshasa", Lubumbashi: "Lubumbashi", "Administrative and judicial seat; courts, ministries and institutional partners.": "Siège administratif et judiciaire ; tribunaux, ministères et partenaires institutionnels.", "In the heart of the mining province: titles, operators and subcontractors of Haut-Katanga.": "Au cœur de la province minière : titres, opérateurs et sous-traitants du Haut-Katanga.",
+  "Good to know": "Bon à savoir", "Frequently asked questions": "Questions fréquentes", "Why register a trademark in the DRC?": "Pourquoi enregistrer une marque en RDC\u202f?", "Registration helps establish rights to your brand and gives you legal tools to oppose unauthorised use and counterfeiting.": "L’enregistrement établit vos droits sur votre marque et vous donne des moyens juridiques pour vous opposer aux usages non autorisés et à la contrefaçon.", "How are your fees calculated?": "Comment vos honoraires sont-ils calculés\u202f?", "Fees depend on the nature, complexity and urgency of the matter. We discuss the scope and fee arrangements with you before starting work.": "Les honoraires dépendent de la nature, de la complexité et de l’urgence du dossier. Nous convenons avec vous de la mission et des honoraires avant de commencer.", "Do you act for foreign clients?": "Travaillez-vous pour des clients étrangers\u202f?", "Yes. We advise foreign investors and companies entering the DRC, including on local structures, contracts, compliance and disputes.": "Oui. Nous conseillons les investisseurs et entreprises étrangers qui s’implantent en RDC, notamment sur les structures locales, les contrats, la conformité et les litiges.", "Are my exchanges with the firm confidential?": "Mes échanges avec le cabinet sont-ils confidentiels\u202f?", "Professional secrecy and confidentiality apply to our work in accordance with the rules governing the profession.": "Le secret professionnel et la confidentialité s’appliquent à notre travail conformément aux règles de la profession.",
+  "Let's talk about your project": "Parlons de votre projet", "Let's discuss your case": "Parlons de votre dossier", "Describe your need in a few lines. The firm will get back to you to arrange a first conversation.": "Décrivez votre besoin en quelques lignes. Le cabinet vous recontactera pour organiser un premier échange.", "Offices in Kinshasa and Lubumbashi": "Bureaux à Kinshasa et Lubumbashi", "Reply within two working days": "Réponse sous deux jours ouvrés", "Exchanges covered by professional secrecy": "Échanges couverts par le secret professionnel", "Full name": "Nom complet", Phone: "Téléphone", "Email address": "Adresse e-mail", Subject: "Sujet", "Business law / litigation": "Droit des affaires / contentieux", "Trademarks and intellectual property": "Marques et propriété intellectuelle", "Other request": "Autre demande", "Your message": "Votre message", "Send my request": "Envoyer ma demande", "This form opens your email app with the message pre-filled. It is not a legal consultation.": "Ce formulaire ouvre votre messagerie avec le message prérempli. Il ne constitue pas une consultation juridique.",
+  "Cabinet PKM": "Cabinet PKM", "Lawyers, mining and quarry agent, trademark and intellectual property agent.": "Avocats, mandataires en mines et carrières, marques et propriété intellectuelle.", "Kinshasa and Lubumbashi, Democratic Republic of the Congo.": "Kinshasa et Lubumbashi, République démocratique du Congo.", Contact: "Contact", "© 2026 Cabinet PKM. The information on this site is general in nature and does not replace personalised legal advice.": "© 2026 Cabinet PKM. Les informations de ce site sont générales et ne remplacent pas un conseil juridique personnalisé.", "Any questions?": "Une question\u202f?",
+  "What is a mining and quarry agent?": "Qu’est-ce qu’un mandataire en mines et carrières\u202f?", "A mining and quarry agent assists with applications, renewals and follow-up of mining and quarry titles before the competent authorities in the DRC.": "Le mandataire en mines et carrières accompagne les demandes, les renouvellements et le suivi des titres miniers et de carrières auprès des autorités compétentes en RDC.",
+  "Cabinet PKM · DRC": "Cabinet PKM · RDC", "Pierre Kasongo Makanda,": "Pierre Kasongo Makanda,",
+  "PKM — home": "PKM — accueil", "Main navigation": "Navigation principale", "Language selection": "Choix de la langue", "Switch to light mode": "Passer en mode clair", "Switch to dark mode": "Passer en mode sombre",
+  "Open menu": "Ouvrir le menu", "Close menu": "Fermer le menu", "Mobile navigation": "Navigation mobile", "Mobile navigation links": "Liens de navigation mobile",
+  "Cabinet PKM in pictures": "Cabinet PKM en images", "Hero carousel controls": "Commandes du carrousel", "Previous visual": "Visuel précédent", "Next visual": "Visuel suivant", "Choose visual": "Choisir un visuel", "Show visual 1": "Afficher le visuel 1", "Show visual 2": "Afficher le visuel 2", "Show visual 3": "Afficher le visuel 3",
+  "Portrait of Pierre Kasongo Makanda to be added": "Portrait de Pierre Kasongo Makanda à ajouter", "Footer navigation": "Navigation de pied de page",
 };
 
-function localize(node: ReactNode, language: "en" | "fr"): ReactNode {
-  if (typeof node === "string") {
-    if (language === "en") return node;
-    const trimmed = node.trim();
-    const translation = french[trimmed];
-    return translation ? node.replace(trimmed, translation) : node;
+// Strings that read the same in both languages, so they are not reported as missing.
+const sameInBothLanguages = new Set(["PKM", "FR", "EN", "Français", "English", "Switch to English", "Introduction", "Cabinet PKM · Kinshasa & Lubumbashi", "01 / Kinshasa", "02 / Haut-Katanga"]);
+const reportedMissing = new Set<string>();
+
+// Attributes read by screen readers or shown on hover, translated like text.
+const translatedProps = ["aria-label", "title"] as const;
+
+function translate(text: string, language: "en" | "fr"): string {
+  if (language === "en") return text;
+  const trimmed = text.trim();
+  const translation = french[trimmed];
+  if (translation !== undefined) return text.replace(trimmed, translation);
+  if (process.env.NODE_ENV !== "production" && /[a-z]/i.test(trimmed) && !sameInBothLanguages.has(trimmed) && !reportedMissing.has(trimmed)) {
+    reportedMissing.add(trimmed);
+    console.warn(`[i18n] Missing French translation: "${trimmed}"`);
   }
+  return text;
+}
+
+function localize(node: ReactNode, language: "en" | "fr"): ReactNode {
+  if (typeof node === "string") return translate(node, language);
   if (Array.isArray(node)) {
     return node.map((child, index) => {
       const localizedChild = localize(child, language);
@@ -64,14 +84,20 @@ function localize(node: ReactNode, language: "en" | "fr"): ReactNode {
       return localizedChild;
     });
   }
-  if (isValidElement<{ children?: ReactNode }>(node) && node.props.children) {
-    return cloneElement(node, { key: node.key ?? undefined }, localize(node.props.children, language));
+  if (isValidElement<Record<string, unknown>>(node)) {
+    const props: Record<string, unknown> = {};
+    for (const name of translatedProps) {
+      const value = node.props[name];
+      if (typeof value === "string") props[name] = translate(value, language);
+    }
+    if (node.props.children) props.children = localize(node.props.children as ReactNode, language);
+    return Object.keys(props).length > 0 ? cloneElement(node, props) : node;
   }
   return node;
 }
 
 export default function Home() {
-  const [language, setLanguage] = useState<"en" | "fr">("en");
+  const [language, setLanguage] = useState<"en" | "fr">("fr");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
   const [pauseHeroCarousel, setPauseHeroCarousel] = useState(false);
@@ -106,12 +132,12 @@ export default function Home() {
   const page = (
     <main className="site-shell min-h-screen bg-[#0d3b32] text-[#f4f5f0]">
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="PKM — accueil">
+        <a className="brand" href="#top" aria-label="PKM — home">
           <span className="brand-name">PKM</span>
           <span className="brand-caption">Law firm and authorised agents</span>
         </a>
 
-        <nav className="primary-nav" aria-label="Navigation principale">
+        <nav className="primary-nav" aria-label="Main navigation">
           {links.map((link) => (
             <a key={link} href={`#${link === "Method" ? "méthode" : link.toLowerCase().replaceAll(" ", "-")}`}>
               {link}
@@ -175,7 +201,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="hero-visual" aria-label="Cabinet PKM en images">
+          <div className="hero-visual" aria-label="Cabinet PKM in pictures">
             <div className="hero-orbit hero-orbit-one" />
             <div className="hero-orbit hero-orbit-two" />
             <div className="hero-orbit hero-orbit-three" />
@@ -244,7 +270,7 @@ export default function Home() {
       <section className="expertise-section" id="expertise">
         <div className="section-container">
           <div className="section-heading">
-            <p className="section-kicker">Ce que nous faisons</p>
+            <p className="section-kicker">What we do</p>
             <h2>Our expertise</h2>
             <p>Each case is handled by a lawyer who knows the law, the administrations and the field, in Kinshasa or in Lubumbashi.</p>
           </div>
@@ -304,7 +330,7 @@ export default function Home() {
       <section className="clients-section" id="clients">
         <div className="section-container">
           <div className="section-heading clients-heading">
-            <p className="section-kicker">À qui nous nous adressons</p>
+            <p className="section-kicker">Who we serve</p>
             <h2>Who we work with</h2>
             <p>Operators with a concrete project who need reliable legal advice to move it forward.</p>
           </div>
@@ -328,7 +354,7 @@ export default function Home() {
       <section className="method-section" id="méthode">
         <div className="section-container">
           <div className="section-heading method-heading">
-            <p className="section-kicker">Notre méthode</p>
+            <p className="section-kicker">Our method</p>
             <h2>How we work</h2>
             <p>A clear approach, with an identified contact at every stage.</p>
           </div>
@@ -359,7 +385,7 @@ export default function Home() {
 
       <section className="founder-section" id="the-firm">
         <div className="section-container founder-layout">
-          <div className="founder-portrait" role="img" aria-label="Portrait de Pierre Kasongo Makanda à ajouter">
+          <div className="founder-portrait" role="img" aria-label="Portrait of Pierre Kasongo Makanda to be added">
             <span className="portrait-monogram">PKM</span>
             <span className="portrait-caption">Portrait to be added</span>
           </div>
@@ -378,7 +404,7 @@ export default function Home() {
       <section className="offices-section" id="offices">
         <div className="section-container">
           <div className="section-heading offices-heading">
-            <p className="section-kicker">Ancrage local</p>
+            <p className="section-kicker">Local presence</p>
             <h2>Two offices, one team</h2>
           </div>
           <div className="office-cards">
@@ -399,7 +425,7 @@ export default function Home() {
       <section className="faq-section" id="faq">
         <div className="section-container faq-layout">
           <div className="section-heading faq-heading">
-            <p className="section-kicker">Questions fréquentes</p>
+            <p className="section-kicker">Good to know</p>
             <h2>Frequently asked questions</h2>
           </div>
           <div className="faq-list">
@@ -430,7 +456,7 @@ export default function Home() {
       <section className="contact-section" id="contact">
         <div className="section-container contact-layout">
           <div className="contact-copy">
-            <p className="section-kicker">Parlons de votre projet</p>
+            <p className="section-kicker">Let&apos;s talk about your project</p>
             <h2>Let&apos;s discuss your case</h2>
             <p className="contact-intro">Describe your need in a few lines. The firm will get back to you to arrange a first conversation.</p>
             <ul className="contact-promises">
@@ -481,7 +507,7 @@ export default function Home() {
             <p>Lawyers, mining and quarry agent, trademark and intellectual property agent.<br />Kinshasa and Lubumbashi, Democratic Republic of the Congo.</p>
           </div>
           <div className="footer-right">
-            <nav className="footer-nav" aria-label="Navigation de pied de page">
+            <nav className="footer-nav" aria-label="Footer navigation">
               <a href="#expertise">Expertise</a>
               <a href="#the-firm">The firm</a>
               <a href="#faq">FAQ</a>
