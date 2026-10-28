@@ -2,15 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MailCheck } from "lucide-react";
 import { getOtpChallengeId } from "@/lib/auth";
-import { isMailConfigured } from "@/lib/mailer";
-import { getChallengeEmail } from "@/lib/otp";
+import { canRevealCode, getChallengeEmail } from "@/lib/otp";
 import { VerifyForm } from "./verify-form";
 
 export const metadata: Metadata = {
   title: "Code de vérification | Cabinet PKM",
 };
 
-// j***@pkm.cd: enough to recognise the address without exposing it.
+// j***@pkm.cd : assez pour reconnaître l'adresse sans l'exposer.
 function maskEmail(email: string) {
   const [user, domain] = email.split("@");
   return `${user.slice(0, 1)}${"•".repeat(Math.max(user.length - 1, 2))}@${domain}`;
@@ -34,12 +33,7 @@ export default async function AdminVerifyPage() {
           <p className="mt-2 mb-8 text-sm leading-relaxed text-[#63746c] dark:text-[#a9bdb4]">
             Nous avons envoyé un code à 6 chiffres à <strong className="font-semibold text-[#233d36] dark:text-[#e0e9e3]">{maskEmail(email)}</strong>. Il expire dans 10 minutes.
           </p>
-          {!isMailConfigured() && process.env.NODE_ENV !== "production" && (
-            <p className="mb-6 rounded-[2px] border border-dashed border-[#c9d5cd] bg-white px-3 py-2.5 text-[11px] leading-relaxed text-[#63746c] dark:border-[#315247] dark:bg-[#0f2621] dark:text-[#a9bdb4]">
-              Mode développement : aucun serveur d’envoi n’est configuré, le code est affiché dans le terminal de <code>npm run dev</code>.
-            </p>
-          )}
-          <VerifyForm />
+          <VerifyForm canRevealCode={canRevealCode()} />
         </>
       ) : (
         <>

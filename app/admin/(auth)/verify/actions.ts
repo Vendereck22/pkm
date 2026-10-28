@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { clearOtpChallenge, createSession, getOtpChallengeId } from "@/lib/auth";
 import { sendOtpEmail } from "@/lib/mailer";
-import { cancelChallenge, renewChallenge, verifyChallenge } from "@/lib/otp";
+import { cancelChallenge, renewChallenge, revealChallengeCode, verifyChallenge } from "@/lib/otp";
 
 export type VerifyState = { error?: string; expired?: boolean } | undefined;
 export type ResendState = { message?: string; error?: string } | undefined;
@@ -49,6 +49,13 @@ export async function resendCode(): Promise<ResendState> {
     return { error: "L’envoi du code a échoué. Réessayez dans quelques instants." };
   }
   return { message: "Un nouveau code vient d’être envoyé." };
+}
+
+// Développement uniquement : affiche le code en cours tant qu'aucun e-mail ne peut être envoyé.
+export async function revealDevCode(): Promise<{ code?: string; error?: string }> {
+  const challengeId = await getOtpChallengeId();
+  const code = challengeId ? revealChallengeCode(challengeId) : null;
+  return code ? { code } : { error: "Aucun code à afficher : reconnectez-vous pour en recevoir un nouveau." };
 }
 
 export async function cancelLogin() {

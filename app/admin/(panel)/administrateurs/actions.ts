@@ -34,7 +34,7 @@ export async function createAdmin(_state: CreateAdminState, formData: FormData):
         name: name || null,
         role,
         passwordHash: await bcrypt.hash(password, 12),
-        // The .env account has no database row to point to.
+        // Le compte du .env n'a pas de ligne en base vers laquelle pointer.
         createdById: owner.id === ENV_ADMIN_ID ? null : owner.id,
       },
     });
@@ -58,7 +58,7 @@ export async function setAdminDisabled(adminId: string, disabled: boolean) {
   const target = await db.admin.findUnique({ where: { id: adminId }, select: { role: true } });
   if (!target) return;
 
-  // Never leave the panel without an active principal admin.
+  // Ne jamais laisser le panneau sans administrateur principal actif.
   if (disabled && target.role === "OWNER" && !getEnvAdmin()) {
     const otherOwners = await db.admin.count({ where: { role: "OWNER", disabledAt: null, id: { not: adminId } } });
     if (otherOwners === 0) return;

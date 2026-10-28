@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Briefcase, Mail, Phone } from "lucide-react";
+import { ArrowLeft, Briefcase, Mail, Pencil, Phone } from "lucide-react";
 import { openRequest } from "@/lib/contact-requests";
 import { DatabaseNotice, PageHeading, SubjectBadge, formatDate } from "../../panel-ui";
+import { DeleteRequestButton } from "../request-actions";
 
 export default async function AdminRequestPage({ params }: PageProps<"/admin/demandes/[id]">) {
   const { id } = await params;
@@ -66,6 +67,15 @@ export default async function AdminRequestPage({ params }: PageProps<"/admin/dem
           >
             <Mail size={14} /> Répondre par e-mail
           </a>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Link
+              href={`/admin/demandes/${request.id}/modifier`}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-[2px] border border-[#dce4de] text-xs font-semibold text-[#0d3b32] no-underline hover:bg-[#f7f9f7] dark:border-[#315247] dark:text-[#e0e9e3] dark:hover:bg-[#132d27]"
+            >
+              <Pencil size={14} /> Modifier
+            </Link>
+            <DeleteRequestButton id={request.id} name={`${request.firstName} ${request.lastName}`.trim()} backToList variant="full" />
+          </div>
         </aside>
       </div>
     </>

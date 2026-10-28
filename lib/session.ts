@@ -1,10 +1,10 @@
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 
-// Full admin session, issued only after the emailed code is confirmed.
+// Session admin complète, délivrée seulement après confirmation du code reçu par e-mail.
 export const SESSION_COOKIE = "pkm_admin_session";
 export const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
 
-// Short-lived step between the password and the emailed code.
+// Étape de courte durée entre le mot de passe et le code reçu par e-mail.
 export const OTP_COOKIE = "pkm_admin_otp";
 export const OTP_DURATION_MS = 10 * 60 * 1000;
 
@@ -17,7 +17,7 @@ function secretKey() {
   return new TextEncoder().encode(secret);
 }
 
-// `purpose` stops an OTP token from being accepted as a session token and vice versa.
+// `purpose` empêche qu'un jeton OTP soit accepté comme jeton de session, et inversement.
 export async function signToken(payload: SessionPayload | OtpPayload, purpose: "session" | "otp", durationMs: number) {
   const expiresAt = new Date(Date.now() + durationMs);
   const token = await new SignJWT({ ...payload, purpose })
@@ -28,7 +28,7 @@ export async function signToken(payload: SessionPayload | OtpPayload, purpose: "
   return { token, expiresAt };
 }
 
-// Returns null for a missing, tampered, expired or wrong-purpose token instead of throwing.
+// Renvoie null pour un jeton absent, falsifié, expiré ou d'un autre usage, au lieu de lever une erreur.
 export async function verifyToken<T extends SessionPayload | OtpPayload>(token: string | undefined, purpose: "session" | "otp") {
   if (!token) return null;
   try {

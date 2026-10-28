@@ -22,6 +22,7 @@ import {
 import { CONTACT_SUBJECTS, type ContactSubject } from "@/lib/contact-subjects";
 import type { RequestStats } from "@/lib/contact-requests";
 import { logout } from "./actions";
+import { AdminAvatar } from "./admin-avatar";
 
 const subjectIcons: Record<ContactSubject, LucideIcon> = {
   business: Briefcase,
@@ -31,7 +32,7 @@ const subjectIcons: Record<ContactSubject, LucideIcon> = {
 };
 
 type AdminSidebarProps = {
-  admin: { email: string; name: string | null; role: "OWNER" | "ADMIN" };
+  admin: { email: string; name: string | null; role: "OWNER" | "ADMIN"; avatar: string | null };
   stats: RequestStats | null;
 };
 
@@ -41,7 +42,7 @@ export function AdminSidebar({ admin, stats }: AdminSidebarProps) {
   const onRequests = pathname === "/admin/demandes";
   const subject = searchParams.get("sujet");
   const unreadOnly = searchParams.get("statut") === "non-lues";
-  // On phones the menu is a drawer: close it once a destination is picked.
+  // Sur téléphone, le menu est un tiroir : on le ferme dès qu'une destination est choisie.
   const { setOpenMobile } = useSidebar();
   const closeMobile = () => setOpenMobile(false);
 
@@ -141,15 +142,24 @@ export function AdminSidebar({ admin, stats }: AdminSidebarProps) {
       <SidebarSeparator />
 
       <SidebarFooter className="pb-4">
-        <div className="flex min-w-0 items-center gap-2.5 px-1 group-data-[collapsible=icon]:hidden">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#bd642d] font-[Georgia,'Times_New_Roman',serif] text-sm text-white">
-            {(admin.name ?? admin.email).slice(0, 1).toUpperCase()}
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate text-xs font-semibold text-white">{admin.name ?? "Administrateur"}</span>
-            <span className="block truncate text-[10px] text-[#9db4aa]">{admin.role === "OWNER" ? "Administrateur principal" : "Administrateur"}</span>
-          </span>
-        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            {/* Cliquer sur sa photo ou son nom ouvre « Mon profil ». */}
+            <SidebarMenuButton
+              size="lg"
+              isActive={pathname === "/admin/profil"}
+              tooltip="Mon profil"
+              onClick={closeMobile}
+              render={<Link href="/admin/profil" />}
+            >
+              <AdminAvatar name={admin.name} email={admin.email} avatar={admin.avatar} size={32} />
+              <span className="min-w-0">
+                <span className="block truncate text-xs font-semibold text-white">{admin.name ?? "Administrateur"}</span>
+                <span className="block truncate text-[10px] text-[#9db4aa]">{admin.role === "OWNER" ? "Administrateur principal" : "Administrateur"}</span>
+              </span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <form action={logout}>
           <SidebarMenu>
             <SidebarMenuItem>

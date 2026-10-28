@@ -11,7 +11,7 @@ export async function proxy(request: NextRequest) {
 
   if (pathname === LOGIN_PATH) return session ? redirectTo("/admin") : NextResponse.next();
 
-  // The code page is only reachable after a correct password.
+  // La page du code n'est accessible qu'après un mot de passe correct.
   if (pathname === VERIFY_PATH) {
     if (session) return redirectTo("/admin");
     const pending = await decryptOtp(request.cookies.get(OTP_COOKIE)?.value);

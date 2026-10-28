@@ -1,9 +1,11 @@
 "use client";
 
-import { cloneElement, isValidElement, useEffect, useState, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Mail, MapPin, Menu, Moon, Scale, Sun, X } from "lucide-react";
+import { cloneElement, isValidElement, useActionState, useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, CircleCheck, LoaderCircle, Mail, MapPin, Menu, Moon, Scale, Sun, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { submitContactRequest } from "./contact-actions";
 
 const links = ["Expertise", "Clients", "Method", "The firm", "FAQ"];
 
@@ -39,8 +41,10 @@ const french: Record<string, string> = {
   "Lawyer, mining and quarry agent and trademark and intellectual property agent, he founded Cabinet PKM with offices in Lubumbashi and Kinshasa.": "Avocat, mandataire en mines et carrières et mandataire en marques et propriété intellectuelle, il a fondé le Cabinet PKM, présent à Lubumbashi et à Kinshasa.", "His practice connects business law to two areas that matter greatly in the DRC: mineral resources and brand value.": "Sa pratique relie le droit des affaires à deux enjeux majeurs en RDC : les ressources minérales et la valeur des marques.", "Recognition.": "Distinction.", "Pierre Kasongo is ranked in the Chambers Global Guide 2025 for general business law in the DRC (Band 2).": "Pierre Kasongo figure dans le Chambers Global Guide 2025 en droit général des affaires en RDC (Band 2).",
   "Local presence": "Ancrage local", "Two offices, one team": "Deux bureaux, une équipe", Kinshasa: "Kinshasa", Lubumbashi: "Lubumbashi", "Administrative and judicial seat; courts, ministries and institutional partners.": "Siège administratif et judiciaire ; tribunaux, ministères et partenaires institutionnels.", "In the heart of the mining province: titles, operators and subcontractors of Haut-Katanga.": "Au cœur de la province minière : titres, opérateurs et sous-traitants du Haut-Katanga.",
   "Good to know": "Bon à savoir", "Frequently asked questions": "Questions fréquentes", "Why register a trademark in the DRC?": "Pourquoi enregistrer une marque en RDC\u202f?", "Registration helps establish rights to your brand and gives you legal tools to oppose unauthorised use and counterfeiting.": "L’enregistrement établit vos droits sur votre marque et vous donne des moyens juridiques pour vous opposer aux usages non autorisés et à la contrefaçon.", "How are your fees calculated?": "Comment vos honoraires sont-ils calculés\u202f?", "Fees depend on the nature, complexity and urgency of the matter. We discuss the scope and fee arrangements with you before starting work.": "Les honoraires dépendent de la nature, de la complexité et de l’urgence du dossier. Nous convenons avec vous de la mission et des honoraires avant de commencer.", "Do you act for foreign clients?": "Travaillez-vous pour des clients étrangers\u202f?", "Yes. We advise foreign investors and companies entering the DRC, including on local structures, contracts, compliance and disputes.": "Oui. Nous conseillons les investisseurs et entreprises étrangers qui s’implantent en RDC, notamment sur les structures locales, les contrats, la conformité et les litiges.", "Are my exchanges with the firm confidential?": "Mes échanges avec le cabinet sont-ils confidentiels\u202f?", "Professional secrecy and confidentiality apply to our work in accordance with the rules governing the profession.": "Le secret professionnel et la confidentialité s’appliquent à notre travail conformément aux règles de la profession.",
-  "Let's talk about your project": "Parlons de votre projet", "Let's discuss your case": "Parlons de votre dossier", "Describe your need in a few lines. The firm will get back to you to arrange a first conversation.": "Décrivez votre besoin en quelques lignes. Le cabinet vous recontactera pour organiser un premier échange.", "Offices in Kinshasa and Lubumbashi": "Bureaux à Kinshasa et Lubumbashi", "Reply within two working days": "Réponse sous deux jours ouvrés", "Exchanges covered by professional secrecy": "Échanges couverts par le secret professionnel", "Full name": "Nom complet", Phone: "Téléphone", "Email address": "Adresse e-mail", Subject: "Sujet", "Business law / litigation": "Droit des affaires / contentieux", "Trademarks and intellectual property": "Marques et propriété intellectuelle", "Other request": "Autre demande", "Your message": "Votre message", "Send my request": "Envoyer ma demande", "This form opens your email app with the message pre-filled. It is not a legal consultation.": "Ce formulaire ouvre votre messagerie avec le message prérempli. Il ne constitue pas une consultation juridique.",
+  "Let's talk about your project": "Parlons de votre projet", "Let's discuss your case": "Parlons de votre dossier", "Describe your need in a few lines. The firm will get back to you to arrange a first conversation.": "Décrivez votre besoin en quelques lignes. Le cabinet vous recontactera pour organiser un premier échange.", "Offices in Kinshasa and Lubumbashi": "Bureaux à Kinshasa et Lubumbashi", "Reply within two working days": "Réponse sous deux jours ouvrés", "Exchanges covered by professional secrecy": "Échanges couverts par le secret professionnel", "Full name": "Nom complet", Phone: "Téléphone", "Email address": "Adresse e-mail", Subject: "Sujet", "Business law / litigation": "Droit des affaires / contentieux", "Trademarks and intellectual property": "Marques et propriété intellectuelle", "Other request": "Autre demande", "Your message": "Votre message", "Send my request": "Envoyer ma demande", "Your request is sent directly to the firm. It is not a legal consultation.": "Votre demande est transmise directement au cabinet. Elle ne constitue pas une consultation juridique.",
   "Cabinet PKM": "Cabinet PKM", "Lawyers, mining and quarry agent, trademark and intellectual property agent.": "Avocats, mandataires en mines et carrières, marques et propriété intellectuelle.", "Kinshasa and Lubumbashi, Democratic Republic of the Congo.": "Kinshasa et Lubumbashi, République démocratique du Congo.", Contact: "Contact", "© 2026 Cabinet PKM. The information on this site is general in nature and does not replace personalised legal advice.": "© 2026 Cabinet PKM. Les informations de ce site sont générales et ne remplacent pas un conseil juridique personnalisé.", "Any questions?": "Une question\u202f?",
+  "Sending…": "Envoi en cours…", "Message sent successfully": "Message envoyé avec succès", "Thank you, we will get back to you very soon.": "Merci, nous vous reviendrons très bientôt.", "Close": "Fermer",
+  "Please enter your full name.": "Indiquez votre nom complet.", "Please enter a valid email address.": "Indiquez une adresse e-mail valide.", "Please choose a subject.": "Choisissez un sujet.", "Your message is too short: please describe your request in a few words.": "Votre message est trop court : décrivez votre demande en quelques mots.", "One of the fields is too long.": "L’un des champs est trop long.", "You have sent several requests in a short time. Please wait a few minutes before sending a new one.": "Vous avez envoyé plusieurs demandes en peu de temps. Patientez quelques minutes avant d’en envoyer une nouvelle.", "Your request could not be sent because of a technical problem. Your text has been kept: please try again in a few minutes.": "Votre demande n’a pas pu être envoyée à cause d’un problème technique. Votre texte a été conservé : réessayez dans quelques minutes.",
   "What is a mining and quarry agent?": "Qu’est-ce qu’un mandataire en mines et carrières\u202f?", "A mining and quarry agent assists with applications, renewals and follow-up of mining and quarry titles before the competent authorities in the DRC.": "Le mandataire en mines et carrières accompagne les demandes, les renouvellements et le suivi des titres miniers et de carrières auprès des autorités compétentes en RDC.",
   "Cabinet PKM · DRC": "Cabinet PKM · RDC", "Pierre Kasongo Makanda,": "Pierre Kasongo Makanda,",
   "PKM — home": "PKM — accueil", "Main navigation": "Navigation principale", "Language selection": "Choix de la langue", "Switch to light mode": "Passer en mode clair", "Switch to dark mode": "Passer en mode sombre",
@@ -49,11 +53,11 @@ const french: Record<string, string> = {
   "Portrait of Pierre Kasongo Makanda to be added": "Portrait de Pierre Kasongo Makanda à ajouter", "Footer navigation": "Navigation de pied de page",
 };
 
-// Strings that read the same in both languages, so they are not reported as missing.
+// Textes identiques dans les deux langues : ils ne sont pas signalés comme manquants.
 const sameInBothLanguages = new Set(["PKM", "FR", "EN", "Français", "English", "Switch to English", "Introduction", "Cabinet PKM · Kinshasa & Lubumbashi", "01 / Kinshasa", "02 / Haut-Katanga"]);
 const reportedMissing = new Set<string>();
 
-// Attributes read by screen readers or shown on hover, translated like text.
+// Attributs lus par les lecteurs d'écran ou affichés au survol, traduits comme le texte.
 const translatedProps = ["aria-label", "title"] as const;
 
 function translate(text: string, language: "en" | "fr"): string {
@@ -68,15 +72,17 @@ function translate(text: string, language: "en" | "fr"): string {
   return text;
 }
 
+const subscribeNothing = () => () => {};
+
 function localize(node: ReactNode, language: "en" | "fr"): ReactNode {
   if (typeof node === "string") return translate(node, language);
   if (Array.isArray(node)) {
     return node.map((child, index) => {
       const localizedChild = localize(child, language);
 
-      // React's Children.toArray would add keys, but this recursive traversal
-      // intentionally preserves the original element tree. Add a stable key
-      // to array elements that were created without one.
+      // Children.toArray de React ajouterait des clés, mais ce parcours récursif
+      // conserve volontairement l'arbre d'éléments d'origine. On ajoute une clé
+      // stable aux éléments de tableau créés sans clé.
       if (isValidElement(localizedChild) && localizedChild.key === null) {
         return cloneElement(localizedChild, { key: `localized-child-${index}` });
       }
@@ -101,8 +107,18 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
   const [pauseHeroCarousel, setPauseHeroCarousel] = useState(false);
+  const [contactState, contactAction, contactPending] = useActionState(submitContactRequest, undefined);
+  // Après un envoi réussi, une nouvelle clé recrée le formulaire vide ; après une erreur, on garde la saisie.
+  const contactFormKey = contactState?.status === "success" ? contactState.sentAt : "contact-form";
+  const contactValues = contactState?.status === "error" ? contactState.values : undefined;
+  // La fenêtre de confirmation s'ouvre à chaque nouvel envoi réussi, jusqu'à ce que le visiteur la ferme.
+  const [dismissedSentAt, setDismissedSentAt] = useState<number | null>(null);
+  const successDialogOpen = contactState?.status === "success" && dismissedSentAt !== contactState.sentAt;
   const { resolvedTheme, setTheme } = useTheme();
-  const darkMode = resolvedTheme === "dark";
+  // Le serveur ne peut pas connaître le thème enregistré dans le navigateur : le premier
+  // rendu côté client doit correspondre à celui du serveur (clair) avant d'afficher le vrai.
+  const hydrated = useSyncExternalStore(subscribeNothing, () => true, () => false);
+  const darkMode = hydrated && resolvedTheme === "dark";
   function toggleTheme() {
     const appliedDarkMode = document.documentElement.classList.contains("dark");
     setTheme(appliedDarkMode ? "light" : "dark");
@@ -466,24 +482,28 @@ export default function Home() {
             </ul>
           </div>
 
-          <form className="contact-form" action="mailto:contact@pkm.cd" method="post" encType="text/plain">
+          <form key={contactFormKey} className="contact-form" action={contactAction}>
+            {/* Piège à robots : placé hors de l'écran, laissé vide par les visiteurs. */}
+            <div className="form-honeypot" aria-hidden="true">
+              <input name="pkm_hp" tabIndex={-1} autoComplete="off" />
+            </div>
             <div className="form-row">
               <label>
                 <span>Full name</span>
-                <input name="name" autoComplete="name" required />
+                <input name="name" autoComplete="name" required maxLength={160} defaultValue={contactValues?.name} />
               </label>
               <label>
                 <span>Phone</span>
-                <input name="phone" type="tel" autoComplete="tel" />
+                <input name="phone" type="tel" autoComplete="tel" maxLength={40} defaultValue={contactValues?.phone} />
               </label>
             </div>
             <label>
               <span>Email address</span>
-              <input name="email" type="email" autoComplete="email" required />
+              <input name="email" type="email" autoComplete="email" required maxLength={254} defaultValue={contactValues?.email} />
             </label>
             <label>
               <span>Subject</span>
-              <select name="subject" defaultValue="business">
+              <select name="subject" defaultValue={contactValues?.subject ?? "business"}>
                 <option value="business">Business law / litigation</option>
                 <option value="mining">Mining titles and quarries</option>
                 <option value="trademark">Trademarks and intellectual property</option>
@@ -492,13 +512,37 @@ export default function Home() {
             </label>
             <label>
               <span>Your message</span>
-              <textarea name="message" rows={5} required />
+              <textarea name="message" rows={5} required minLength={10} maxLength={5000} defaultValue={contactValues?.message} />
             </label>
-            <button type="submit" className="form-submit">Send my request <ArrowUpRight size={13} /></button>
-            <p className="form-note">This form opens your email app with the message pre-filled. It is not a legal consultation.</p>
+            <button type="submit" className="form-submit" disabled={contactPending} aria-busy={contactPending}>
+              {contactPending ? (
+                <>
+                  <LoaderCircle size={13} className="form-submit-spinner" /> Sending…
+                </>
+              ) : (
+                <>
+                  Send my request <ArrowUpRight size={13} />
+                </>
+              )}
+            </button>
+            {/* En cas d'erreur, la note habituelle laisse la place au message, sans changer la mise en page. */}
+            {contactState?.status === "error" ? (
+              <p className="form-note form-note-error" role="alert">{contactState.message}</p>
+            ) : (
+              <p className="form-note">Your request is sent directly to the firm. It is not a legal consultation.</p>
+            )}
           </form>
         </div>
       </section>
+
+      <Dialog open={successDialogOpen} onOpenChange={(open) => !open && contactState?.status === "success" && setDismissedSentAt(contactState.sentAt)}>
+        <DialogContent showCloseButton={false} className="contact-success-dialog">
+          <CircleCheck className="contact-success-icon" size={40} strokeWidth={1.5} aria-hidden="true" />
+          <DialogTitle className="contact-success-title">Message sent successfully</DialogTitle>
+          <DialogDescription className="contact-success-text">Thank you, we will get back to you very soon.</DialogDescription>
+          <DialogClose className="form-submit contact-success-close">Close</DialogClose>
+        </DialogContent>
+      </Dialog>
 
       <footer className="site-footer">
         <div className="section-container footer-layout">

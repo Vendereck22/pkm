@@ -1,5 +1,5 @@
-// Creates the principal admin account, or resets its password (and re-enables it) if the email already exists.
-// Usage: npm run admin:create -- admin@pkm.cd "mot-de-passe" "Nom affiché"
+// Crée le compte administrateur principal, ou réinitialise son mot de passe (et le réactive) si l'e-mail existe déjà.
+// Utilisation : npm run admin:create -- admin@pkm.cd "mot-de-passe" "Nom affiché"
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { PrismaNeon } from "@prisma/adapter-neon";
@@ -27,7 +27,7 @@ async function main() {
   const db = new PrismaClient({ adapter: new PrismaNeon({ connectionString: process.env.DATABASE_URL }) });
   const passwordHash = await bcrypt.hash(password, 12);
 
-  // This script bootstraps the principal admin; other accounts are created from the panel.
+  // Ce script crée le premier administrateur principal ; les autres comptes se créent depuis le panneau.
   const admin = await db.admin.upsert({
     where: { email },
     create: { email, passwordHash, name, role: "OWNER" },

@@ -34,7 +34,7 @@ export async function sendOtpEmail(to: string, code: string) {
 
   if (!config) {
     if (process.env.NODE_ENV === "production") throw new Error("SMTP is not configured");
-    // Development only: no mail server yet, so the code is printed in the `npm run dev` terminal.
+    // Développement uniquement : pas encore de serveur d'envoi, le code s'affiche dans le terminal de `npm run dev`.
     console.info(`\n[admin] Code de connexion pour ${to} : ${code}\n`);
     return;
   }

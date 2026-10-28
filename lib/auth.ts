@@ -16,7 +16,7 @@ const cookieOptions = {
   path: "/",
 };
 
-// Step 1 → 2: the password was right, email a code and remember the pending challenge.
+// Étape 1 → 2 : le mot de passe est bon, on envoie un code par e-mail et on mémorise la vérification en attente.
 export async function startOtpChallenge(adminId: string, email: string) {
   const { id, code } = createChallenge(adminId, email);
   await sendOtpEmail(email, code);
@@ -33,7 +33,7 @@ export async function clearOtpChallenge() {
   (await cookies()).delete(OTP_COOKIE);
 }
 
-// Step 2 → panel: the code was right, open the real session.
+// Étape 2 → panneau : le code est bon, on ouvre la vraie session.
 export async function createSession(adminId: string) {
   const { token, expiresAt } = await signToken({ adminId }, "session", SESSION_DURATION_MS);
   const cookieStore = await cookies();
@@ -45,30 +45,30 @@ export async function deleteSession() {
   (await cookies()).delete(SESSION_COOKIE);
 }
 
-export type CurrentAdmin = { id: string; email: string; name: string | null; role: AdminRole };
+export type CurrentAdmin = { id: string; email: string; name: string | null; role: AdminRole; avatar: string | null };
 
-// The cookie is still validly signed here, so the proxy would bounce /admin/login back to
-// /admin. This route clears it first, which avoids a redirect loop.
+// Ici le cookie est encore correctement signé : le proxy renverrait /admin/login vers
+// /admin. Cette route l'efface d'abord, ce qui évite une boucle de redirections.
 const END_SESSION_PATH = "/admin/logout";
 
-// The proxy only checks the cookie signature; pages also confirm the admin still exists and is active.
+// Le proxy ne vérifie que la signature du cookie ; les pages confirment aussi que l'administrateur existe toujours et est actif.
 export const requireAdmin = cache(async (): Promise<CurrentAdmin> => {
   const session = await decryptSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) redirect("/admin/login");
 
   if (session.adminId === ENV_ADMIN_ID) {
-    // Removing the .env account from .env also ends its open sessions.
+    // Retirer le compte du .env met aussi fin à ses sessions ouvertes.
     const envAdmin = getEnvAdmin();
     if (!envAdmin) redirect(END_SESSION_PATH);
-    return envAdmin;
+    return { ...envAdmin, avatar: null };
   }
 
   const admin = await getDb().admin.findUnique({
     where: { id: session.adminId },
-    select: { id: true, email: true, name: true, role: true, disabledAt: true },
+    select: { id: true, email: true, name: true, role: true, avatar: true, disabledAt: true },
   });
   if (!admin || admin.disabledAt) redirect(END_SESSION_PATH);
-  return { id: admin.id, email: admin.email, name: admin.name, role: admin.role };
+  return { id: admin.id, email: admin.email, name: admin.name, role: admin.role, avatar: admin.avatar };
 });
 
 export async function requireOwner() {

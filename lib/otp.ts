@@ -1,10 +1,11 @@
 import "server-only";
 import { createHmac, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
+import { isMailConfigured } from "@/lib/mailer";
 import { OTP_DURATION_MS } from "@/lib/session";
 
-// Codes live in server memory until the database exists. This works with `next dev`
-// and a single `next start` process, but not across several serverless instances:
-// move the challenges to a database table before deploying to such a host.
+// Les codes sont gardés en mémoire du serveur tant que la base n'existe pas. Cela marche avec
+// `next dev` et un seul processus `next start`, mais pas sur plusieurs instances serverless :
+// déplacer les vérifications dans une table avant de déployer sur ce type d'hébergement.
 
 const MAX_ATTEMPTS = 5;
 const RESEND_COOLDOWN_MS = 30 * 1000;
@@ -16,6 +17,8 @@ type Challenge = {
   expiresAt: number;
   attempts: number;
   sentAt: number;
+  // Code en clair, gardé seulement quand il peut être affiché à l'écran (voir canRevealCode).
+  devCode?: string;
 };
 
 const globalForOtp = globalThis as unknown as { otpChallenges?: Map<string, Challenge> };
@@ -29,6 +32,16 @@ function newCode() {
   return randomInt(0, 1_000_000).toString().padStart(6, "0");
 }
 
+// Tant qu'aucun serveur d'envoi n'est configuré, le code peut être affiché sur la page de
+// vérification pour tester la connexion. Jamais en production, ni dès que le SMTP est configuré.
+export function canRevealCode() {
+  return process.env.NODE_ENV !== "production" && !isMailConfigured();
+}
+
+function devCodeFor(code: string) {
+  return canRevealCode() ? code : undefined;
+}
+
 function purgeExpired() {
   const now = Date.now();
   for (const [id, challenge] of challenges) if (challenge.expiresAt < now) challenges.delete(id);
@@ -39,13 +52,20 @@ export function createChallenge(adminId: string, email: string) {
   const id = randomBytes(16).toString("hex");
   const code = newCode();
   const now = Date.now();
-  challenges.set(id, { adminId, email, codeHash: hashCode(id, code), expiresAt: now + OTP_DURATION_MS, attempts: 0, sentAt: now });
+  challenges.set(id, { adminId, email, codeHash: hashCode(id, code), expiresAt: now + OTP_DURATION_MS, attempts: 0, sentAt: now, devCode: devCodeFor(code) });
   return { id, code };
 }
 
 export function getChallengeEmail(id: string) {
   const challenge = challenges.get(id);
   return challenge && challenge.expiresAt > Date.now() ? challenge.email : null;
+}
+
+// Renvoie le code en cours, uniquement si canRevealCode() l'autorise.
+export function revealChallengeCode(id: string) {
+  if (!canRevealCode()) return null;
+  const challenge = challenges.get(id);
+  return challenge && challenge.expiresAt > Date.now() ? (challenge.devCode ?? null) : null;
 }
 
 export type VerifyResult =
@@ -76,7 +96,7 @@ export function verifyChallenge(id: string, code: string): VerifyResult {
 
 export type ResendResult = { status: "ok"; email: string; code: string } | { status: "wait"; seconds: number } | { status: "expired" };
 
-// Issues a new code on the same challenge; earlier codes stop working.
+// Émet un nouveau code pour la même vérification ; les codes précédents ne marchent plus.
 export function renewChallenge(id: string): ResendResult {
   const challenge = challenges.get(id);
   if (!challenge || challenge.expiresAt < Date.now()) return { status: "expired" };
@@ -86,6 +106,7 @@ export function renewChallenge(id: string): ResendResult {
 
   const code = newCode();
   challenge.codeHash = hashCode(id, code);
+  challenge.devCode = devCodeFor(code);
   challenge.sentAt = Date.now();
   challenge.attempts = 0;
   return { status: "ok", email: challenge.email, code };

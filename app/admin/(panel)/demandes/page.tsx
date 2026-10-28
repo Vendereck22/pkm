@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { listRequests } from "@/lib/contact-requests";
 import { CONTACT_SUBJECTS, isContactSubject, subjectLabel } from "@/lib/contact-subjects";
 import { DatabaseNotice, PageHeading, SubjectBadge, formatDate } from "../panel-ui";
+import { RequestRowActions } from "./request-actions";
 
 const filterClass = "rounded-full border px-3 py-1 text-xs no-underline transition-colors";
 const filterIdle = "border-[#dce4de] bg-white text-[#354b43] hover:border-[#9db4aa] dark:border-[#29443a] dark:bg-[#0f2621] dark:text-[#c9d8d0]";
@@ -44,6 +45,7 @@ export default async function AdminRequestsPage({ searchParams }: PageProps<"/ad
                 <TableHead className="text-[11px] text-[#63746c] dark:text-[#a9bdb4]">Coordonnées</TableHead>
                 <TableHead className="text-[11px] text-[#63746c] dark:text-[#a9bdb4]">Sujet</TableHead>
                 <TableHead className="text-right text-[11px] text-[#63746c] dark:text-[#a9bdb4]">Reçue le</TableHead>
+                <TableHead className="text-right text-[11px] text-[#63746c] dark:text-[#a9bdb4]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -66,6 +68,9 @@ export default async function AdminRequestsPage({ searchParams }: PageProps<"/ad
                     </TableCell>
                     <TableCell><SubjectBadge subject={request.subject} /></TableCell>
                     <TableCell className="text-right text-xs text-[#63746c] dark:text-[#a9bdb4]">{formatDate(request.createdAt)}</TableCell>
+                    <TableCell className="text-right">
+                      <RequestRowActions id={request.id} name={`${request.firstName} ${request.lastName}`.trim()} />
+                    </TableCell>
                   </TableRow>
                 );
               })}

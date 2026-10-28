@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default async function AdminPanelLayout({ children }: { children: React.ReactNode }) {
   const [admin, stats, cookieStore] = await Promise.all([requireAdmin(), getRequestStats(), cookies()]);
-  // Same cookie the shadcn sidebar writes, so the collapsed state survives reloads.
+  // Même cookie que celui écrit par la sidebar shadcn : l'état replié survit aux rechargements.
   const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false";
 
   return (

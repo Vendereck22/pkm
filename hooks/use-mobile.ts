@@ -9,7 +9,7 @@ function subscribe(onChange: () => void) {
   return () => mql.removeEventListener("change", onChange)
 }
 
-// Server render assumes desktop, like the original `!!undefined`.
+// Le rendu serveur suppose un ordinateur, comme le `!!undefined` d'origine.
 export function useIsMobile() {
   return React.useSyncExternalStore(
     subscribe,

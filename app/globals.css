@@ -73,7 +73,7 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  /* Admin sidebar in the PKM palette (only the admin panel uses these). */
+  /* Barre latérale admin aux couleurs PKM (seul le panneau admin utilise ces variables). */
   --sidebar: #0d3b32;
   --sidebar-foreground: #d5e0db;
   --sidebar-primary: #bd642d;
@@ -1316,6 +1316,80 @@ body {
   background: #d27a43;
 }
 
+/* Champ piège à robots : hors de l'écran, mais pas display:none que certains robots détectent. */
+.form-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.form-submit:disabled {
+  cursor: progress;
+  opacity: .85;
+}
+
+.form-submit-spinner {
+  animation: form-spin .8s linear infinite;
+}
+
+@keyframes form-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Fenêtre « Message envoyé avec succès », aux couleurs du site. */
+.contact-success-dialog {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  max-width: 380px;
+  padding: 32px 28px 26px;
+  border-radius: 2px;
+  background: #fff;
+  color: var(--pkm-ink);
+  text-align: center;
+}
+
+.contact-success-icon {
+  color: var(--pkm-copper);
+}
+
+.contact-success-title {
+  margin: 4px 0 0;
+  color: var(--pkm-green);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.contact-success-text {
+  margin: 0 0 10px;
+  color: #63746c;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.contact-success-close {
+  width: auto;
+  min-width: 120px;
+}
+
+.dark .contact-success-dialog {
+  background: #132d27;
+  color: #e0e9e3;
+}
+
+.dark .contact-success-title {
+  color: #f4f5f0;
+}
+
+.dark .contact-success-text {
+  color: #a9bdb4;
+}
+
 .form-note {
   margin: 0;
   color: #7a8881;
@@ -1492,6 +1566,15 @@ body {
 
 .dark .form-note {
   color: #9fb2a8;
+}
+
+.form-note-error {
+  color: #a33b12;
+  font-weight: 600;
+}
+
+.dark .form-note-error {
+  color: #f1a27c;
 }
 
 .hero-orbit-one {

@@ -1,4 +1,4 @@
-// Subjects offered by the contact form on the site (the <select name="subject"> values).
+// Sujets proposés par le formulaire de contact du site (valeurs du <select name="subject">).
 export const CONTACT_SUBJECTS = [
   { value: "business", label: "Droit des affaires et contentieux", shortLabel: "Droit des affaires" },
   { value: "mining", label: "Titres miniers et carrières", shortLabel: "Mines et carrières" },

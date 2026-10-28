@@ -11,7 +11,7 @@ const fieldClass =
   "h-10 rounded-[2px] border-[#dce3de] bg-white px-3 text-sm text-[#263e37] focus-visible:border-[#7b9c8c] focus-visible:ring-2 focus-visible:ring-[#0d3b32]/10 dark:border-[#315247] dark:bg-[#0f2621] dark:text-[#e0e9e3]";
 const labelClass = "text-[11px] font-semibold text-[#354b43] dark:text-[#c9d8d0]";
 
-// No look-alike characters (0/O, 1/l/I), so the password can be read out or copied by hand.
+// Aucun caractère ambigu (0/O, 1/l/I), pour que le mot de passe puisse être dicté ou recopié à la main.
 const PASSWORD_ALPHABET = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function generatePassword(length = 16) {
@@ -21,7 +21,7 @@ function generatePassword(length = 16) {
 
 export function CreateAdminForm() {
   const [state, action, pending] = useActionState(createAdmin, undefined);
-  // A fresh key after each success empties every field, the password included.
+  // Une nouvelle clé après chaque succès vide tous les champs, mot de passe compris.
   return <CreateAdminFields key={state?.created ?? "new"} state={state} action={action} pending={pending} />;
 }
 

@@ -46,7 +46,7 @@ export function listRequests(filter: RequestFilter = {}, take = 100) {
   );
 }
 
-// Opening a request marks it as read.
+// Ouvrir une demande la marque comme lue.
 export function openRequest(id: string) {
   return withDatabase<ContactRequest | null>(async () => {
     const db = getDb();
@@ -54,4 +54,9 @@ export function openRequest(id: string) {
     if (request && !request.readAt) return db.contactRequest.update({ where: { id }, data: { readAt: new Date() } });
     return request;
   });
+}
+
+// Lecture seule, pour la page de modification : ne change pas l'état « lue ».
+export function getRequest(id: string) {
+  return withDatabase<ContactRequest | null>(() => getDb().contactRequest.findUnique({ where: { id } }));
 }

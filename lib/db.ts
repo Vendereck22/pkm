@@ -4,8 +4,8 @@ import { PrismaClient } from "@/lib/generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-// Created on first use so pages that never query the database work without DATABASE_URL.
-// One client is reused across hot reloads in development.
+// Créé au premier usage, pour que les pages qui n'interrogent pas la base fonctionnent sans DATABASE_URL.
+// Un seul client est réutilisé entre les rechargements à chaud en développement.
 export function getDb() {
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
 
@@ -17,7 +17,7 @@ export function getDb() {
   return client;
 }
 
-// Pages show an explicit state instead of crashing while Neon is not connected yet.
+// Les pages affichent un état explicite au lieu de planter tant que Neon n'est pas connecté.
 export type DataResult<T> = { ok: true; data: T } | { ok: false; reason: "not-configured" | "error" };
 
 export function isDatabaseConfigured() {

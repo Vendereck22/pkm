@@ -14,6 +14,8 @@ export function listAdmins() {
         id: true,
         email: true,
         name: true,
+        jobTitle: true,
+        avatar: true,
         role: true,
         disabledAt: true,
         lastLoginAt: true,

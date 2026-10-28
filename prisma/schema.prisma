@@ -20,6 +20,11 @@ model Admin {
   email        String    @unique
   passwordHash String
   name         String?
+  // Profil, modifiable par l'administrateur lui-même depuis « Mon profil ».
+  jobTitle     String?
+  phone        String?
+  // Photo réduite à 256 × 256 px dans le navigateur, stockée en data URL (quelques dizaines de Ko).
+  avatar       String?
   role         AdminRole @default(ADMIN)
   // Un compte désactivé ne peut plus se connecter et ses sessions sont coupées.
   disabledAt   DateTime?

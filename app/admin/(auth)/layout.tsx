@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Shared frame for the password and code steps: brand panel on the left, form on the right.
+// Cadre commun aux étapes mot de passe et code : panneau de marque à gauche, formulaire à droite.
 export default function AdminAuthLayout({
   children,
 }: {

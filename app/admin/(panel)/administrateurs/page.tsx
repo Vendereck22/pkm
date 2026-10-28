@@ -6,6 +6,7 @@ import { ROLE_LABELS, listAdmins } from "@/lib/admins";
 import { requireAdmin } from "@/lib/auth";
 import { ENV_ADMIN_ID, getEnvAdmin } from "@/lib/env-admin";
 import { DatabaseNotice, PageHeading, formatDate } from "../panel-ui";
+import { AdminAvatar } from "../admin-avatar";
 import { setAdminDisabled } from "./actions";
 import { CreateAdminForm } from "./create-admin-form";
 
@@ -27,7 +28,9 @@ function RoleBadge({ role }: { role: keyof typeof ROLE_LABELS }) {
 export default async function AdminAccountsPage() {
   const [current, admins] = await Promise.all([requireAdmin(), listAdmins()]);
   const isOwner = current.role === "OWNER";
-  const envAdmin = getEnvAdmin();
+  // Une fois le compte du .env transféré en base, seule sa version en base est affichée.
+  const envAdminInEnvOnly = getEnvAdmin();
+  const envAdmin = admins.ok && admins.data.some((admin) => admin.email === envAdminInEnvOnly?.email) ? null : envAdminInEnvOnly;
 
   return (
     <>
@@ -57,8 +60,13 @@ export default async function AdminAccountsPage() {
               {envAdmin && (
                 <TableRow className={rowClass}>
                   <TableCell>
-                    <span className="block text-sm font-semibold text-[#233d36] dark:text-[#e0e9e3]">{envAdmin.name ?? envAdmin.email}</span>
-                    <span className="text-xs text-[#63746c] dark:text-[#a9bdb4]">{envAdmin.email}</span>
+                    <div className="flex items-center gap-3">
+                      <AdminAvatar name={envAdmin.name} email={envAdmin.email} avatar={null} size={32} />
+                      <div>
+                        <span className="block text-sm font-semibold text-[#233d36] dark:text-[#e0e9e3]">{envAdmin.name ?? envAdmin.email}</span>
+                        <span className="text-xs text-[#63746c] dark:text-[#a9bdb4]">{envAdmin.email}</span>
+                      </div>
+                    </div>
                   </TableCell>
                   <TableCell><RoleBadge role="OWNER" /></TableCell>
                   <TableCell className="text-xs text-[#63746c] dark:text-[#a9bdb4]">
@@ -75,11 +83,16 @@ export default async function AdminAccountsPage() {
                   return (
                     <TableRow key={admin.id} className={`${rowClass} ${disabled ? "opacity-60" : ""}`}>
                       <TableCell>
-                        <span className="block text-sm font-semibold text-[#233d36] dark:text-[#e0e9e3]">{admin.name ?? admin.email}</span>
-                        <span className="text-xs text-[#63746c] dark:text-[#a9bdb4]">{admin.email}</span>
-                        {admin.createdBy && (
-                          <span className="block text-[10px] text-[#9db4aa]">Ajouté par {admin.createdBy.name ?? admin.createdBy.email}</span>
-                        )}
+                        <div className="flex items-center gap-3">
+                          <AdminAvatar name={admin.name} email={admin.email} avatar={admin.avatar} size={32} />
+                          <div>
+                            <span className="block text-sm font-semibold text-[#233d36] dark:text-[#e0e9e3]">{admin.name ?? admin.email}</span>
+                            <span className="text-xs text-[#63746c] dark:text-[#a9bdb4]">{admin.jobTitle ? `${admin.jobTitle} · ${admin.email}` : admin.email}</span>
+                            {admin.createdBy && (
+                              <span className="block text-[10px] text-[#9db4aa]">Ajouté par {admin.createdBy.name ?? admin.createdBy.email}</span>
+                            )}
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <RoleBadge role={admin.role} />
