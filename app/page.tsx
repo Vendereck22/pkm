@@ -2,6 +2,7 @@
 
 import { cloneElement, isValidElement, useActionState, useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, CircleCheck, LoaderCircle, Mail, MapPin, Menu, Moon, Scale, Sun, X } from "lucide-react";
+import Image from "next/image";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -37,7 +38,7 @@ const french: Record<string, string> = {
   "Who we serve": "À qui nous nous adressons", "Who we work with": "Nos clients", "Operators with a concrete project who need reliable legal advice to move it forward.": "Des opérateurs avec un projet concret qui ont besoin de conseils juridiques fiables pour avancer.",
   "Mining companies and subcontractors": "Sociétés minières et sous-traitants", "Title holders, investors, traders and service providers in the mining sector of Haut-Katanga and beyond.": "Titulaires de titres, investisseurs, négociants et prestataires du secteur minier du Haut-Katanga et d’ailleurs.", "Foreign investors and companies": "Investisseurs et entreprises étrangers", "Groups setting up in the DRC that want to structure their presence, contracts and risks.": "Groupes qui s’implantent en RDC et souhaitent structurer leur présence, leurs contrats et leurs risques.", "SMEs, entrepreneurs and creators": "PME, entrepreneurs et créateurs", "Traders, local brands, artists and start-ups who want to protect their name and creations.": "Commerçants, marques locales, artistes et jeunes entreprises qui veulent protéger leur nom et leurs créations.",
   "Our method": "Notre méthode", "How we work": "Comment nous travaillons", "A clear approach, with an identified contact at every stage.": "Une démarche claire, avec un interlocuteur identifié à chaque étape.", Listening: "Écoute", "A first conversation to understand your situation, deadlines and stakes.": "Un premier échange pour comprendre votre situation, vos délais et vos enjeux.", Analysis: "Analyse", "Review of the texts, documents and risks, then presentation of the options.": "Étude des textes, des documents et des risques, puis présentation des options.", Strategy: "Stratégie", "A roadmap agreed with you, and fees announced in advance.": "Une feuille de route définie avec vous et des honoraires annoncés à l’avance.", "Follow-up": "Suivi", "Execution of the procedures, regular reporting and support through to the outcome.": "Mise en œuvre des démarches, comptes rendus réguliers et accompagnement jusqu’à leur aboutissement.",
-  "Portrait to be added": "Portrait à ajouter", "Attorney": "Avocat",
+  "Attorney": "Avocat",
   "Lawyer, mining and quarry agent and trademark and intellectual property agent, he founded Cabinet PKM with offices in Lubumbashi and Kinshasa.": "Avocat, mandataire en mines et carrières et mandataire en marques et propriété intellectuelle, il a fondé le Cabinet PKM, présent à Lubumbashi et à Kinshasa.", "His practice connects business law to two areas that matter greatly in the DRC: mineral resources and brand value.": "Sa pratique relie le droit des affaires à deux enjeux majeurs en RDC : les ressources minérales et la valeur des marques.", "Recognition.": "Distinction.", "Pierre Kasongo is ranked in the Chambers Global Guide 2025 for general business law in the DRC (Band 2).": "Pierre Kasongo figure dans le Chambers Global Guide 2025 en droit général des affaires en RDC (Band 2).",
   "Local presence": "Ancrage local", "Two offices, one team": "Deux bureaux, une équipe", Kinshasa: "Kinshasa", Lubumbashi: "Lubumbashi", "Administrative and judicial seat; courts, ministries and institutional partners.": "Siège administratif et judiciaire ; tribunaux, ministères et partenaires institutionnels.", "In the heart of the mining province: titles, operators and subcontractors of Haut-Katanga.": "Au cœur de la province minière : titres, opérateurs et sous-traitants du Haut-Katanga.",
   "Good to know": "Bon à savoir", "Frequently asked questions": "Questions fréquentes", "Why register a trademark in the DRC?": "Pourquoi enregistrer une marque en RDC\u202f?", "Registration helps establish rights to your brand and gives you legal tools to oppose unauthorised use and counterfeiting.": "L’enregistrement établit vos droits sur votre marque et vous donne des moyens juridiques pour vous opposer aux usages non autorisés et à la contrefaçon.", "How are your fees calculated?": "Comment vos honoraires sont-ils calculés\u202f?", "Fees depend on the nature, complexity and urgency of the matter. We discuss the scope and fee arrangements with you before starting work.": "Les honoraires dépendent de la nature, de la complexité et de l’urgence du dossier. Nous convenons avec vous de la mission et des honoraires avant de commencer.", "Do you act for foreign clients?": "Travaillez-vous pour des clients étrangers\u202f?", "Yes. We advise foreign investors and companies entering the DRC, including on local structures, contracts, compliance and disputes.": "Oui. Nous conseillons les investisseurs et entreprises étrangers qui s’implantent en RDC, notamment sur les structures locales, les contrats, la conformité et les litiges.", "Are my exchanges with the firm confidential?": "Mes échanges avec le cabinet sont-ils confidentiels\u202f?", "Professional secrecy and confidentiality apply to our work in accordance with the rules governing the profession.": "Le secret professionnel et la confidentialité s’appliquent à notre travail conformément aux règles de la profession.",
@@ -50,7 +51,7 @@ const french: Record<string, string> = {
   "PKM — home": "PKM — accueil", "Main navigation": "Navigation principale", "Language selection": "Choix de la langue", "Switch to light mode": "Passer en mode clair", "Switch to dark mode": "Passer en mode sombre",
   "Open menu": "Ouvrir le menu", "Close menu": "Fermer le menu", "Mobile navigation": "Navigation mobile", "Mobile navigation links": "Liens de navigation mobile",
   "Cabinet PKM in pictures": "Cabinet PKM en images", "Hero carousel controls": "Commandes du carrousel", "Previous visual": "Visuel précédent", "Next visual": "Visuel suivant", "Choose visual": "Choisir un visuel", "Show visual 1": "Afficher le visuel 1", "Show visual 2": "Afficher le visuel 2", "Show visual 3": "Afficher le visuel 3",
-  "Portrait of Pierre Kasongo Makanda to be added": "Portrait de Pierre Kasongo Makanda à ajouter", "Footer navigation": "Navigation de pied de page",
+  "Portrait of Pierre Kasongo Makanda, founder of Cabinet PKM": "Portrait de Pierre Kasongo Makanda, fondateur du Cabinet PKM", "Footer navigation": "Navigation de pied de page",
 };
 
 // Textes identiques dans les deux langues : ils ne sont pas signalés comme manquants.
@@ -58,7 +59,7 @@ const sameInBothLanguages = new Set(["PKM", "FR", "EN", "Français", "English", 
 const reportedMissing = new Set<string>();
 
 // Attributs lus par les lecteurs d'écran ou affichés au survol, traduits comme le texte.
-const translatedProps = ["aria-label", "title"] as const;
+const translatedProps = ["aria-label", "title", "alt"] as const;
 
 function translate(text: string, language: "en" | "fr"): string {
   if (language === "en") return text;
@@ -401,9 +402,14 @@ export default function Home() {
 
       <section className="founder-section" id="the-firm">
         <div className="section-container founder-layout">
-          <div className="founder-portrait" role="img" aria-label="Portrait of Pierre Kasongo Makanda to be added">
-            <span className="portrait-monogram">PKM</span>
-            <span className="portrait-caption">Portrait to be added</span>
+          <div className="founder-portrait founder-portrait-photo">
+            <Image
+              src="/images/pierre-kasongo-makanda.jpeg"
+              alt="Portrait of Pierre Kasongo Makanda, founder of Cabinet PKM"
+              fill
+              sizes="(max-width: 900px) 100vw, 40vw"
+              className="founder-photo"
+            />
           </div>
           <div className="founder-copy">
             <p className="founder-kicker">The firm</p>

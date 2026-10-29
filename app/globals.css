@@ -1024,6 +1024,22 @@ body {
   aspect-ratio: 1;
 }
 
+/* Avec la photo, le cadre adopte le format portrait et les cercles décoratifs disparaissent. */
+.founder-portrait-photo {
+  min-height: 0;
+  aspect-ratio: 4 / 5;
+}
+
+.founder-portrait-photo::before,
+.founder-portrait-photo::after {
+  display: none;
+}
+
+.founder-photo {
+  object-fit: cover;
+  object-position: center 18%;
+}
+
 .portrait-monogram {
   z-index: 1;
   color: rgba(204, 222, 210, .22);
@@ -1619,11 +1635,19 @@ body {
   }
 }
 
-@media (max-width: 760px) {
+/* La barre de navigation complète demande environ 1 024 px : en dessous, on passe au menu compact. */
+@media (max-width: 1080px) {
   .site-header {
-    width: calc(100% - 40px);
-    height: 70px;
     gap: 12px;
+  }
+
+  /* Sur tablette, la colonne du titre est trop étroite pour le retour à la ligne forcé. */
+  .desktop-break {
+    display: none;
+  }
+
+  .hero-inner {
+    gap: 40px;
   }
 
   .brand {
@@ -1719,6 +1743,7 @@ body {
   .mobile-theme-toggle {
     min-height: 42px;
     gap: 8px;
+    background: transparent;
     border-color: rgba(222, 235, 228, .35);
     color: #e3ebe5;
   }
@@ -1742,6 +1767,13 @@ body {
     font-size: 12px;
     font-weight: 600;
     text-decoration: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    width: calc(100% - 40px);
+    height: 70px;
   }
 
   .hero-inner {
@@ -1972,10 +2004,6 @@ body {
 
   .hero-copy h1 {
     font-size: 39px;
-  }
-
-  .desktop-break {
-    display: none;
   }
 
   .hero-visual {
