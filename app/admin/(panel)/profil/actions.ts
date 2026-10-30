@@ -7,14 +7,19 @@ import { createSession, requireAdmin } from "@/lib/auth";
 import { getDb, isDatabaseConfigured } from "@/lib/db";
 import { ENV_ADMIN_ID, getEnvAdminCredentials, isEnvAdminEmail } from "@/lib/env-admin";
 import { Prisma } from "@/lib/generated/prisma/client";
+import { sendEmailChangeCode } from "@/lib/mailer";
+import { cancelChallenge, createChallenge, verifyChallenge } from "@/lib/otp";
 
 export type ProfileState = { error?: string; success?: string } | undefined;
+// `pending` : la nouvelle adresse attend le code qui vient de lui être envoyé.
+export type ProfileFormState = (ProfileState & { pending?: { email: string; challengeId: string } }) | undefined;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 12;
 // La photo arrive déjà réduite par le navigateur ; cette limite bloque les envois anormaux.
 const MAX_AVATAR_LENGTH = 300_000;
 const AVATAR_PATTERN = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+const EMAIL_TAKEN = "Un autre administrateur utilise déjà cette adresse e-mail.";
 const ENV_ACCOUNT = "Ce compte vient du fichier .env : enregistrez-le d’abord dans la base pour modifier votre profil.";
 
 // Le nom et la photo apparaissent dans le menu de toutes les pages du panneau.
@@ -28,7 +33,7 @@ async function requireDatabaseAdmin() {
   return admin.id === ENV_ADMIN_ID ? null : admin;
 }
 
-export async function updateProfile(_state: ProfileState, formData: FormData): Promise<ProfileState> {
+export async function updateProfile(_state: ProfileFormState, formData: FormData): Promise<ProfileFormState> {
   const admin = await requireDatabaseAdmin();
   if (!admin) return { error: ENV_ACCOUNT };
 
@@ -50,23 +55,62 @@ export async function updateProfile(_state: ProfileState, formData: FormData): P
     const row = await db.admin.findUnique({ where: { id: admin.id }, select: { passwordHash: true } });
     if (!row || !(await bcrypt.compare(currentPassword, row.passwordHash))) return { error: "Mot de passe actuel incorrect." };
     if (isEnvAdminEmail(email)) return { error: "Cette adresse est réservée au compte du fichier .env." };
+    if (await db.admin.findUnique({ where: { email }, select: { id: true } })) return { error: EMAIL_TAKEN };
   }
 
   try {
-    await db.admin.update({
-      where: { id: admin.id },
-      data: { name: name || null, jobTitle: jobTitle || null, phone: phone || null, email },
-    });
+    // L'adresse n'est pas enregistrée ici : elle ne change qu'une fois le code confirmé.
+    await db.admin.update({ where: { id: admin.id }, data: { name: name || null, jobTitle: jobTitle || null, phone: phone || null } });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return { error: "Un autre administrateur utilise déjà cette adresse e-mail." };
-    }
     console.error("[admin] update profile failed", error);
     return { error: "Le profil n’a pas pu être enregistré. Réessayez dans quelques instants." };
   }
+  refreshPanel();
+
+  if (!emailChanged) return { success: "Profil enregistré." };
+
+  const challenge = createChallenge(admin.id, email, "email-change");
+  try {
+    await sendEmailChangeCode(email, challenge.code);
+  } catch (error) {
+    cancelChallenge(challenge.id);
+    console.error("[admin] email change code failed", error);
+    return { error: "Vos informations sont enregistrées, mais le code n’a pas pu être envoyé à la nouvelle adresse. Vérifiez-la et réessayez." };
+  }
+  return { pending: { email, challengeId: challenge.id } };
+}
+
+// Deuxième étape du changement d'adresse : le code reçu prouve que la nouvelle boîte vous appartient.
+export async function confirmEmailChange(challengeId: string, _state: ProfileState, formData: FormData): Promise<ProfileState> {
+  const admin = await requireDatabaseAdmin();
+  if (!admin) return { error: ENV_ACCOUNT };
+
+  const code = String(formData.get("code") ?? "").replace(/\D/g, "");
+  if (code.length !== 6) return { error: "Saisissez les 6 chiffres du code." };
+
+  const result = verifyChallenge(challengeId, code, "email-change");
+  if (result.status === "invalid") {
+    return { error: `Code incorrect (${result.attemptsLeft > 1 ? `${result.attemptsLeft} tentatives restantes` : "dernière tentative"}).` };
+  }
+  if (result.status !== "ok" || result.adminId !== admin.id) {
+    return { error: "Ce code n’est plus valable. Enregistrez à nouveau le profil pour en recevoir un autre." };
+  }
+
+  try {
+    await getDb().admin.update({ where: { id: admin.id }, data: { email: result.email } });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return { error: EMAIL_TAKEN };
+    console.error("[admin] confirm email change failed", error);
+    return { error: "L’adresse n’a pas pu être enregistrée. Réessayez dans quelques instants." };
+  }
 
   refreshPanel();
-  return { success: emailChanged ? "Profil enregistré. Les prochains codes de connexion seront envoyés à la nouvelle adresse." : "Profil enregistré." };
+  return { success: `Adresse confirmée. Vos prochains codes de connexion seront envoyés à ${result.email}.` };
+}
+
+export async function cancelEmailChange(challengeId: string) {
+  await requireDatabaseAdmin();
+  cancelChallenge(challengeId);
 }
 
 // `avatar` à null retire la photo.

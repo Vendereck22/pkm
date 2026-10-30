@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Code de vérification | Cabinet PKM",
 };
 
-// j***@pkm.cd : assez pour reconnaître l'adresse sans l'exposer.
+// j***@cabinetpkm.com : assez pour reconnaître l'adresse sans l'exposer.
 function maskEmail(email: string) {
   const [user, domain] = email.split("@");
   return `${user.slice(0, 1)}${"•".repeat(Math.max(user.length - 1, 2))}@${domain}`;

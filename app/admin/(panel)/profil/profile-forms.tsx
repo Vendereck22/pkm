@@ -1,12 +1,20 @@
 "use client";
 
 import { useActionState, useRef, useState, useTransition } from "react";
-import { Camera, DatabaseZap, KeyRound, LoaderCircle, Save, Trash2 } from "lucide-react";
+import { Camera, DatabaseZap, KeyRound, LoaderCircle, MailCheck, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AdminAvatar } from "../admin-avatar";
-import { changePassword, moveEnvAccountToDatabase, updateAvatar, updateProfile, type ProfileState } from "./actions";
+import {
+  cancelEmailChange,
+  changePassword,
+  confirmEmailChange,
+  moveEnvAccountToDatabase,
+  updateAvatar,
+  updateProfile,
+  type ProfileState,
+} from "./actions";
 
 const fieldClass =
   "h-10 rounded-[2px] border-[#dce3de] bg-white px-3 text-sm text-[#263e37] focus-visible:border-[#7b9c8c] focus-visible:ring-2 focus-visible:ring-[#0d3b32]/10 dark:border-[#315247] dark:bg-[#0f2621] dark:text-[#e0e9e3]";
@@ -92,41 +100,112 @@ type ProfileDetails = Profile & { jobTitle: string | null; phone: string | null 
 export function ProfileForm({ profile }: { profile: ProfileDetails }) {
   const [state, action, pending] = useActionState(updateProfile, undefined);
   const [email, setEmail] = useState(profile.email);
+  // Code envoyé à la nouvelle adresse, en attente de saisie. Réinitialisé à chaque enregistrement.
+  const [dismissed, setDismissed] = useState<string | null>(null);
+  // Message de l'adresse confirmée, affiché jusqu'au prochain enregistrement du formulaire.
+  const [confirmed, setConfirmed] = useState<{ challengeId: string; message: string } | null>(null);
+  const feedback = confirmed && state?.pending?.challengeId === confirmed.challengeId ? { success: confirmed.message } : state;
+  const awaiting = state?.pending && state.pending.challengeId !== dismissed && state.pending.email === email.trim().toLowerCase() ? state.pending : null;
   const emailChanged = email.trim().toLowerCase() !== profile.email;
 
+  function stopWaiting(resetEmail: boolean, message?: string) {
+    if (!awaiting) return;
+    setDismissed(awaiting.challengeId);
+    if (message) setConfirmed({ challengeId: awaiting.challengeId, message });
+    if (resetEmail) {
+      setEmail(profile.email);
+      void cancelEmailChange(awaiting.challengeId);
+    }
+  }
+
   return (
-    <form action={action} className="grid gap-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid gap-2">
-          <Label htmlFor="profile-name" className={labelClass}>Nom affiché</Label>
-          <Input id="profile-name" name="name" maxLength={80} defaultValue={profile.name ?? ""} placeholder="Ex. Pierre Kasongo Makanda" className={fieldClass} />
+    <div className="grid gap-4">
+      <form action={action} className="grid gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-2">
+            <Label htmlFor="profile-name" className={labelClass}>Nom affiché</Label>
+            <Input id="profile-name" name="name" maxLength={80} defaultValue={profile.name ?? ""} placeholder="Ex. Pierre Kasongo Makanda" className={fieldClass} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="profile-job" className={labelClass}>Fonction</Label>
+            <Input id="profile-job" name="jobTitle" maxLength={120} defaultValue={profile.jobTitle ?? ""} placeholder="Ex. Avocat associé" className={fieldClass} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="profile-phone" className={labelClass}>Téléphone</Label>
+            <Input id="profile-phone" name="phone" type="tel" maxLength={40} defaultValue={profile.phone ?? ""} placeholder="+243 …" className={fieldClass} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="profile-email" className={labelClass}>Adresse e-mail</Label>
+            <Input id="profile-email" name="email" type="email" required maxLength={254} value={email} onChange={(event) => setEmail(event.target.value)} className={fieldClass} />
+          </div>
         </div>
-        <div className="grid gap-2">
-          <Label htmlFor="profile-job" className={labelClass}>Fonction</Label>
-          <Input id="profile-job" name="jobTitle" maxLength={120} defaultValue={profile.jobTitle ?? ""} placeholder="Ex. Avocat associé" className={fieldClass} />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="profile-phone" className={labelClass}>Téléphone</Label>
-          <Input id="profile-phone" name="phone" type="tel" maxLength={40} defaultValue={profile.phone ?? ""} placeholder="+243 …" className={fieldClass} />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="profile-email" className={labelClass}>Adresse e-mail</Label>
-          <Input id="profile-email" name="email" type="email" required maxLength={254} value={email} onChange={(event) => setEmail(event.target.value)} className={fieldClass} />
-        </div>
-      </div>
 
-      {emailChanged && (
-        <div className="grid gap-2 rounded-[2px] border border-dashed border-[#c9d5cd] p-4 dark:border-[#315247]">
-          <Label htmlFor="profile-current-password" className={labelClass}>Mot de passe actuel</Label>
-          <Input id="profile-current-password" name="currentPassword" type="password" autoComplete="current-password" required className={fieldClass} />
-          <p className="text-[11px] text-[#63746c] dark:text-[#a9bdb4]">Les codes de connexion seront envoyés à la nouvelle adresse : confirmez avec votre mot de passe.</p>
-        </div>
+        {emailChanged && !awaiting && (
+          <div className="grid gap-2 rounded-[2px] border border-dashed border-[#c9d5cd] p-4 dark:border-[#315247]">
+            <Label htmlFor="profile-current-password" className={labelClass}>Mot de passe actuel</Label>
+            <Input id="profile-current-password" name="currentPassword" type="password" autoComplete="current-password" required className={fieldClass} />
+            <p className="text-[11px] text-[#63746c] dark:text-[#a9bdb4]">
+              Confirmez avec votre mot de passe : un code sera ensuite envoyé à la nouvelle adresse pour vérifier qu’elle vous appartient.
+            </p>
+          </div>
+        )}
+
+        {!awaiting && <Feedback state={feedback} />}
+        {!awaiting && (
+          <Button type="submit" disabled={pending} className={`${primaryButton} w-fit`}>
+            {pending ? <LoaderCircle className="animate-spin" /> : <Save />} {pending ? "Enregistrement…" : "Enregistrer le profil"}
+          </Button>
+        )}
+      </form>
+
+      {awaiting && (
+        <EmailChangeConfirm key={awaiting.challengeId} email={awaiting.email} challengeId={awaiting.challengeId} onDone={(message) => stopWaiting(false, message)} onCancel={() => stopWaiting(true)} />
       )}
+    </div>
+  );
+}
 
+type EmailChangeConfirmProps = { email: string; challengeId: string; onDone: (message: string) => void; onCancel: () => void };
+
+function EmailChangeConfirm({ email, challengeId, onDone, onCancel }: EmailChangeConfirmProps) {
+  const [state, action, pending] = useActionState(async (previous: ProfileState, formData: FormData) => {
+    const result = await confirmEmailChange(challengeId, previous, formData);
+    if (result?.success) onDone(result.success);
+    return result;
+  }, undefined);
+
+  return (
+    <form action={action} className="grid gap-3 rounded-[2px] border border-[#bd642d]/40 bg-[#fbf6f2] p-4 dark:border-[#6b3a22] dark:bg-[#2a1d16]">
+      <div className="flex gap-3">
+        <MailCheck size={18} strokeWidth={1.7} className="mt-0.5 shrink-0 text-[#bd642d]" />
+        <p className="text-xs leading-relaxed text-[#354b43] dark:text-[#c9d8d0]">
+          Vos informations sont enregistrées. Un code à 6 chiffres vient d’être envoyé à <strong>{email}</strong> : saisissez-le pour que cette adresse
+          remplace l’ancienne. D’ici là, vos codes de connexion continuent d’arriver à l’adresse actuelle.
+        </p>
+      </div>
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="grid gap-2">
+          <Label htmlFor="email-change-code" className={labelClass}>Code reçu</Label>
+          <Input
+            id="email-change-code"
+            name="code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="[0-9 ]*"
+            maxLength={7}
+            required
+            autoFocus
+            className={`${fieldClass} w-36 text-center font-mono tracking-[.3em]`}
+          />
+        </div>
+        <Button type="submit" disabled={pending} className={primaryButton}>
+          {pending ? <LoaderCircle className="animate-spin" /> : <MailCheck />} Confirmer l’adresse
+        </Button>
+        <Button type="button" variant="ghost" disabled={pending} onClick={onCancel} className="h-10 rounded-[2px] text-xs text-[#63746c] dark:text-[#a9bdb4]">
+          Annuler
+        </Button>
+      </div>
       <Feedback state={state} />
-      <Button type="submit" disabled={pending} className={`${primaryButton} w-fit`}>
-        {pending ? <LoaderCircle className="animate-spin" /> : <Save />} {pending ? "Enregistrement…" : "Enregistrer le profil"}
-      </Button>
     </form>
   );
 }

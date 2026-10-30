@@ -105,7 +105,7 @@ function CreateAdminFields({ state, action, pending }: FieldsProps) {
           </Button>
         </div>
         <p className="text-[11px] text-[#63746c] dark:text-[#a9bdb4]">
-          12 caractères minimum. Transmettez-le à la personne par un canal sûr : à chaque connexion, elle recevra aussi un code par e-mail.
+          12 caractères minimum. La personne reçoit un e-mail de bienvenue sans ce mot de passe : transmettez-le-lui par un canal sûr. À chaque connexion, elle recevra un code à son adresse.
         </p>
       </div>
 
@@ -116,7 +116,10 @@ function CreateAdminFields({ state, action, pending }: FieldsProps) {
       )}
       {state?.created && (
         <p role="status" className="rounded-[2px] border border-[#b9d6c6] bg-[#eef6f1] px-3 py-2.5 text-xs text-[#1f5a41] dark:border-[#2f5b47] dark:bg-[#123126] dark:text-[#a8dcc0]">
-          Le compte {state.created} a été créé.
+          Le compte {state.created} a été créé.{" "}
+          {state.welcomeSent
+            ? "Un e-mail de bienvenue lui a été envoyé avec le lien de connexion. Transmettez-lui le mot de passe à part."
+            : "L’e-mail de bienvenue n’a pas pu partir : envoyez-lui vous-même le lien de connexion et le mot de passe."}
         </p>
       )}
 

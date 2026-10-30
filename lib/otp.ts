@@ -10,7 +10,11 @@ import { OTP_DURATION_MS } from "@/lib/session";
 const MAX_ATTEMPTS = 5;
 const RESEND_COOLDOWN_MS = 30 * 1000;
 
+// Un code de connexion ne peut pas servir à confirmer une nouvelle adresse, et inversement.
+export type ChallengePurpose = "login" | "email-change";
+
 type Challenge = {
+  purpose: ChallengePurpose;
   adminId: string;
   email: string;
   codeHash: Buffer;
@@ -47,12 +51,12 @@ function purgeExpired() {
   for (const [id, challenge] of challenges) if (challenge.expiresAt < now) challenges.delete(id);
 }
 
-export function createChallenge(adminId: string, email: string) {
+export function createChallenge(adminId: string, email: string, purpose: ChallengePurpose = "login") {
   purgeExpired();
   const id = randomBytes(16).toString("hex");
   const code = newCode();
   const now = Date.now();
-  challenges.set(id, { adminId, email, codeHash: hashCode(id, code), expiresAt: now + OTP_DURATION_MS, attempts: 0, sentAt: now, devCode: devCodeFor(code) });
+  challenges.set(id, { purpose, adminId, email, codeHash: hashCode(id, code), expiresAt: now + OTP_DURATION_MS, attempts: 0, sentAt: now, devCode: devCodeFor(code) });
   return { id, code };
 }
 
@@ -69,21 +73,21 @@ export function revealChallengeCode(id: string) {
 }
 
 export type VerifyResult =
-  | { status: "ok"; adminId: string }
+  | { status: "ok"; adminId: string; email: string }
   | { status: "invalid"; attemptsLeft: number }
   | { status: "expired" }
   | { status: "locked" };
 
-export function verifyChallenge(id: string, code: string): VerifyResult {
+export function verifyChallenge(id: string, code: string, purpose: ChallengePurpose = "login"): VerifyResult {
   const challenge = challenges.get(id);
-  if (!challenge || challenge.expiresAt < Date.now()) {
+  if (!challenge || challenge.purpose !== purpose || challenge.expiresAt < Date.now()) {
     challenges.delete(id);
     return { status: "expired" };
   }
 
   if (timingSafeEqual(challenge.codeHash, hashCode(id, code))) {
     challenges.delete(id);
-    return { status: "ok", adminId: challenge.adminId };
+    return { status: "ok", adminId: challenge.adminId, email: challenge.email };
   }
 
   challenge.attempts += 1;

@@ -2,12 +2,15 @@
 
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { ROLE_LABELS } from "@/lib/admins";
 import { requireOwner } from "@/lib/auth";
 import { getDb, isDatabaseConfigured } from "@/lib/db";
 import { ENV_ADMIN_ID, getEnvAdmin, isEnvAdminEmail } from "@/lib/env-admin";
 import { Prisma } from "@/lib/generated/prisma/client";
+import { sendWelcomeEmail } from "@/lib/mailer";
 
-export type CreateAdminState = { error?: string; created?: string; values?: { email: string; name: string; role: string } } | undefined;
+export type CreateAdminState = { error?: string; created?: string; welcomeSent?: boolean; values?: { email: string; name: string; role: string } } | undefined;
 
 const MIN_PASSWORD_LENGTH = 12;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,7 +50,29 @@ export async function createAdmin(_state: CreateAdminState, formData: FormData):
   }
 
   revalidatePath("/admin/administrateurs");
-  return { created: email };
+
+  // Le compte est créé même si l'e-mail de bienvenue ne part pas : le formulaire le signale.
+  let welcomeSent = true;
+  try {
+    await sendWelcomeEmail(email, {
+      name: name || null,
+      invitedBy: owner.name ?? owner.email,
+      roleLabel: ROLE_LABELS[role],
+      loginUrl: `${await siteOrigin()}/admin/login`,
+    });
+  } catch (error) {
+    console.error("[admin] welcome email failed", error);
+    welcomeSent = false;
+  }
+  return { created: email, welcomeSent };
+}
+
+// Adresse publique du site, pour le lien de l'e-mail : celle de la requête en cours.
+async function siteOrigin() {
+  const list = await headers();
+  const host = list.get("x-forwarded-host") ?? list.get("host") ?? "localhost:3000";
+  const protocol = list.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  return `${protocol}://${host}`;
 }
 
 export async function setAdminDisabled(adminId: string, disabled: boolean) {
