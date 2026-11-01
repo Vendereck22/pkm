@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getDb, isDatabaseConfigured } from "@/lib/db";
 import { startOtpChallenge } from "@/lib/auth";
 import { ENV_ADMIN_ID, getEnvAdmin, isEnvAdminEmail, verifyEnvAdmin } from "@/lib/env-admin";
+import { clearHits, clientIp, countHits, recordHit } from "@/lib/rate-limit";
 
 export type LoginState = { error?: string; email?: string } | undefined;
 
@@ -12,6 +13,13 @@ export type LoginState = { error?: string; email?: string } | undefined;
 const DUMMY_HASH = "$2b$12$LzycbHyu8XUpqemqPnzSCeSieSotzUYTYBUQHzvgkkYVIfyNmYFtO";
 const INVALID_CREDENTIALS = "Adresse e-mail ou mot de passe incorrect.";
 const UNAVAILABLE = "Connexion impossible pour le moment. Réessayez dans quelques instants.";
+const TOO_MANY_ATTEMPTS = "Trop de tentatives de connexion. Réessayez dans 15 minutes.";
+
+// Contre la recherche du mot de passe par essais successifs : 5 échecs par adresse e-mail, ou
+// 20 depuis une même adresse IP (qui peut viser plusieurs comptes), bloquent pendant 15 minutes.
+const FAILURE_WINDOW_MS = 15 * 60 * 1000;
+const MAX_FAILURES_PER_EMAIL = 5;
+const MAX_FAILURES_PER_IP = 20;
 
 // Cherche le compte en base. Si la base est injoignable, le compte du .env reste utilisable.
 async function findDbAdmin(email: string) {
@@ -49,8 +57,22 @@ export async function login(_state: LoginState, formData: FormData): Promise<Log
   if (!email || !password) return { error: "Renseignez votre adresse e-mail et votre mot de passe.", email };
 
   try {
+    // Sans base, le compte du .env reste utilisable, mais sans compteur d'échecs.
+    const limited = isDatabaseConfigured();
+    const emailKey = `login:email:${email}`;
+    const ipKey = `login:ip:${await clientIp()}`;
+    if (limited) {
+      const [emailFailures, ipFailures] = await Promise.all([countHits(emailKey, FAILURE_WINDOW_MS), countHits(ipKey, FAILURE_WINDOW_MS)]);
+      // Même message que l'adresse existe ou non : le blocage ne révèle pas quels comptes existent.
+      if (emailFailures >= MAX_FAILURES_PER_EMAIL || ipFailures >= MAX_FAILURES_PER_IP) return { error: TOO_MANY_ATTEMPTS, email };
+    }
+
     const admin = await checkCredentials(email, password);
-    if (!admin) return { error: INVALID_CREDENTIALS, email };
+    if (!admin) {
+      if (limited) await recordHit(emailKey, ipKey);
+      return { error: INVALID_CREDENTIALS, email };
+    }
+    if (limited) await clearHits(emailKey);
     await startOtpChallenge(admin.id, admin.email);
   } catch (error) {
     console.error("[admin] login failed", error);

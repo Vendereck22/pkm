@@ -17,7 +17,7 @@ export async function verifyCode(_state: VerifyState, formData: FormData): Promi
   const challengeId = await getOtpChallengeId();
   if (!challengeId) return { error: EXPIRED, expired: true };
 
-  const result = verifyChallenge(challengeId, code);
+  const result = await verifyChallenge(challengeId, code);
   if (result.status === "expired") {
     await clearOtpChallenge();
     return { error: EXPIRED, expired: true };
@@ -37,9 +37,10 @@ export async function verifyCode(_state: VerifyState, formData: FormData): Promi
 
 export async function resendCode(): Promise<ResendState> {
   const challengeId = await getOtpChallengeId();
-  const result = challengeId ? renewChallenge(challengeId) : ({ status: "expired" } as const);
+  const result = challengeId ? await renewChallenge(challengeId) : ({ status: "expired" } as const);
 
   if (result.status === "expired") return { error: EXPIRED };
+  if (result.status === "limit") return { error: "Nombre maximal de renvois atteint. Reconnectez-vous pour recevoir un nouveau code." };
   if (result.status === "wait") return { error: `Patientez ${result.seconds} s avant de demander un nouveau code.` };
 
   try {
@@ -54,13 +55,13 @@ export async function resendCode(): Promise<ResendState> {
 // Développement uniquement : affiche le code en cours tant qu'aucun e-mail ne peut être envoyé.
 export async function revealDevCode(): Promise<{ code?: string; error?: string }> {
   const challengeId = await getOtpChallengeId();
-  const code = challengeId ? revealChallengeCode(challengeId) : null;
+  const code = challengeId ? await revealChallengeCode(challengeId) : null;
   return code ? { code } : { error: "Aucun code à afficher : reconnectez-vous pour en recevoir un nouveau." };
 }
 
 export async function cancelLogin() {
   const challengeId = await getOtpChallengeId();
-  if (challengeId) cancelChallenge(challengeId);
+  if (challengeId) await cancelChallenge(challengeId);
   await clearOtpChallenge();
   redirect("/admin/login");
 }

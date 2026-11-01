@@ -18,7 +18,7 @@ const cookieOptions = {
 
 // Étape 1 → 2 : le mot de passe est bon, on envoie un code par e-mail et on mémorise la vérification en attente.
 export async function startOtpChallenge(adminId: string, email: string) {
-  const { id, code } = createChallenge(adminId, email);
+  const { id, code } = await createChallenge(adminId, email);
   await sendOtpEmail(email, code);
   const { token, expiresAt } = await signToken({ challengeId: id }, "otp", OTP_DURATION_MS);
   (await cookies()).set(OTP_COOKIE, token, { ...cookieOptions, expires: expiresAt });
@@ -35,14 +35,28 @@ export async function clearOtpChallenge() {
 
 // Étape 2 → panneau : le code est bon, on ouvre la vraie session.
 export async function createSession(adminId: string) {
-  const { token, expiresAt } = await signToken({ adminId }, "session", SESSION_DURATION_MS);
+  // Le compte du .env n'a pas de ligne en base : ses sessions ne se révoquent qu'en le retirant du .env.
+  const version =
+    adminId === ENV_ADMIN_ID
+      ? 0
+      : ((await getDb().admin.findUnique({ where: { id: adminId }, select: { sessionVersion: true } }))?.sessionVersion ?? 0);
+  const { token, expiresAt } = await signToken({ adminId, version }, "session", SESSION_DURATION_MS);
   const cookieStore = await cookies();
   cookieStore.delete(OTP_COOKIE);
   cookieStore.set(SESSION_COOKIE, token, { ...cookieOptions, expires: expiresAt });
 }
 
+// Le cookie seul ne suffit pas : une copie volée resterait valable. On invalide toutes les sessions du compte.
 export async function deleteSession() {
-  (await cookies()).delete(SESSION_COOKIE);
+  const cookieStore = await cookies();
+  const session = await decryptSession(cookieStore.get(SESSION_COOKIE)?.value);
+  if (session && session.adminId !== ENV_ADMIN_ID) await revokeSessions(session.adminId);
+  cookieStore.delete(SESSION_COOKIE);
+}
+
+// Ferme toutes les sessions ouvertes de ce compte, sur tous les appareils.
+export async function revokeSessions(adminId: string) {
+  await getDb().admin.updateMany({ where: { id: adminId }, data: { sessionVersion: { increment: 1 } } });
 }
 
 export type CurrentAdmin = { id: string; email: string; name: string | null; role: AdminRole; avatar: string | null };
@@ -65,9 +79,9 @@ export const requireAdmin = cache(async (): Promise<CurrentAdmin> => {
 
   const admin = await getDb().admin.findUnique({
     where: { id: session.adminId },
-    select: { id: true, email: true, name: true, role: true, avatar: true, disabledAt: true },
+    select: { id: true, email: true, name: true, role: true, avatar: true, disabledAt: true, sessionVersion: true },
   });
-  if (!admin || admin.disabledAt) redirect(END_SESSION_PATH);
+  if (!admin || admin.disabledAt || session.version !== admin.sessionVersion) redirect(END_SESSION_PATH);
   return { id: admin.id, email: admin.email, name: admin.name, role: admin.role, avatar: admin.avatar };
 });
 

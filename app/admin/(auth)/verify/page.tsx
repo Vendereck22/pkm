@@ -17,7 +17,7 @@ function maskEmail(email: string) {
 
 export default async function AdminVerifyPage() {
   const challengeId = await getOtpChallengeId();
-  const email = challengeId ? getChallengeEmail(challengeId) : null;
+  const email = challengeId ? await getChallengeEmail(challengeId) : null;
 
   return (
     <>

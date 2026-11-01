@@ -8,7 +8,8 @@ export const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
 export const OTP_COOKIE = "pkm_admin_otp";
 export const OTP_DURATION_MS = 10 * 60 * 1000;
 
-export type SessionPayload = { adminId: string };
+// `version` doit correspondre à Admin.sessionVersion : sinon la session a été révoquée.
+export type SessionPayload = { adminId: string; version: number };
 export type OtpPayload = { challengeId: string };
 
 function secretKey() {

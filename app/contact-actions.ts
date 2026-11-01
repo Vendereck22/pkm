@@ -1,9 +1,9 @@
 "use server";
 
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getDb, isDatabaseConfigured } from "@/lib/db";
 import { isContactPosition, positionLabel } from "@/lib/contact-positions";
+import { clientIp, countHits, recordHit } from "@/lib/rate-limit";
 import { isContactSubject } from "@/lib/contact-subjects";
 
 // Les messages sont en anglais : la page d'accueil les traduit avec son dictionnaire, comme le reste du texte.
@@ -19,22 +19,9 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Limite contre les envois en rafale : 10 demandes par adresse IP toutes les 10 minutes.
 // Volontairement large : en RDC, beaucoup de visiteurs mobiles partagent la même adresse IP
-// (opérateurs, cybercafés, bureaux). En mémoire du serveur : suffisant pour un seul processus.
+// (opérateurs, cybercafés, bureaux).
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 10;
-const globalForContact = globalThis as unknown as { contactHits?: Map<string, number[]> };
-const hits = (globalForContact.contactHits ??= new Map<string, number[]>());
-
-function tooManyRequests(ip: string) {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((time) => now - time < RATE_WINDOW_MS);
-  if (recent.length >= RATE_MAX) {
-    hits.set(ip, recent);
-    return true;
-  }
-  hits.set(ip, [...recent, now]);
-  return false;
-}
 
 // Le site demande un « nom complet » ; la base range le premier mot en prénom et le reste en nom.
 // Le panneau réaffiche les deux côte à côte, donc le nom saisi reste intact.
@@ -79,12 +66,13 @@ export async function submitContactRequest(_state: ContactFormState, formData: F
     if (values[field as keyof typeof LIMITS].length > max) return fail("One of the fields is too long.");
   }
 
-  const headerList = await headers();
-  const ip = headerList.get("x-forwarded-for")?.split(",")[0]?.trim() || headerList.get("x-real-ip") || "unknown";
-  if (tooManyRequests(ip)) return fail("You have sent several requests in a short time. Please wait a few minutes before sending a new one.");
-
   if (!isDatabaseConfigured()) return fail("Your request could not be sent because of a technical problem. Your text has been kept: please try again in a few minutes.");
   try {
+    const rateKey = `contact:ip:${await clientIp()}`;
+    if ((await countHits(rateKey, RATE_WINDOW_MS)) >= RATE_MAX) {
+      return fail("You have sent several requests in a short time. Please wait a few minutes before sending a new one.");
+    }
+    await recordHit(rateKey);
     await getDb().contactRequest.create({
       data: {
         ...splitFullName(values.name),

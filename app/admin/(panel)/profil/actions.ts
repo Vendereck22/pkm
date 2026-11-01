@@ -3,7 +3,7 @@
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createSession, requireAdmin } from "@/lib/auth";
+import { createSession, requireAdmin, revokeSessions } from "@/lib/auth";
 import { getDb, isDatabaseConfigured } from "@/lib/db";
 import { ENV_ADMIN_ID, getEnvAdminCredentials, isEnvAdminEmail } from "@/lib/env-admin";
 import { Prisma } from "@/lib/generated/prisma/client";
@@ -69,11 +69,11 @@ export async function updateProfile(_state: ProfileFormState, formData: FormData
 
   if (!emailChanged) return { success: "Profil enregistré." };
 
-  const challenge = createChallenge(admin.id, email, "email-change");
+  const challenge = await createChallenge(admin.id, email, "email-change");
   try {
     await sendEmailChangeCode(email, challenge.code);
   } catch (error) {
-    cancelChallenge(challenge.id);
+    await cancelChallenge(challenge.id);
     console.error("[admin] email change code failed", error);
     return { error: "Vos informations sont enregistrées, mais le code n’a pas pu être envoyé à la nouvelle adresse. Vérifiez-la et réessayez." };
   }
@@ -88,7 +88,7 @@ export async function confirmEmailChange(challengeId: string, _state: ProfileSta
   const code = String(formData.get("code") ?? "").replace(/\D/g, "");
   if (code.length !== 6) return { error: "Saisissez les 6 chiffres du code." };
 
-  const result = verifyChallenge(challengeId, code, "email-change");
+  const result = await verifyChallenge(challengeId, code, "email-change");
   if (result.status === "invalid") {
     return { error: `Code incorrect (${result.attemptsLeft > 1 ? `${result.attemptsLeft} tentatives restantes` : "dernière tentative"}).` };
   }
@@ -110,7 +110,7 @@ export async function confirmEmailChange(challengeId: string, _state: ProfileSta
 
 export async function cancelEmailChange(challengeId: string) {
   await requireDatabaseAdmin();
-  cancelChallenge(challengeId);
+  await cancelChallenge(challengeId);
 }
 
 // `avatar` à null retire la photo.
@@ -142,7 +142,10 @@ export async function changePassword(_state: ProfileState, formData: FormData): 
   if (!row || !(await bcrypt.compare(currentPassword, row.passwordHash))) return { error: "Mot de passe actuel incorrect." };
 
   await db.admin.update({ where: { id: admin.id }, data: { passwordHash: await bcrypt.hash(newPassword, 12) } });
-  return { success: "Mot de passe modifié." };
+  // Un ancien mot de passe peut avoir fuité : les autres appareils sont déconnectés, celui-ci reçoit une nouvelle session.
+  await revokeSessions(admin.id);
+  await createSession(admin.id);
+  return { success: "Mot de passe modifié. Vos autres appareils ont été déconnectés." };
 }
 
 // Copie le compte du .env en base (même e-mail, même mot de passe, administrateur principal),

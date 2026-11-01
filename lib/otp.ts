@@ -1,35 +1,22 @@
 import "server-only";
 import { createHmac, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
+import { getDb } from "@/lib/db";
 import { isMailConfigured } from "@/lib/mailer";
 import { OTP_DURATION_MS } from "@/lib/session";
 
-// Les codes sont gardés en mémoire du serveur tant que la base n'existe pas. Cela marche avec
-// `next dev` et un seul processus `next start`, mais pas sur plusieurs instances serverless :
-// déplacer les vérifications dans une table avant de déployer sur ce type d'hébergement.
+// Les codes sont gardés en base : sur Vercel, l'envoi et la vérification passent souvent par des
+// serveurs différents, qui ne partagent pas leur mémoire.
 
 const MAX_ATTEMPTS = 5;
+// Un renvoi ne redonne pas d'essais : au total, 5 codes proposés par connexion, quel que soit le nombre de renvois.
+const MAX_RESENDS = 3;
 const RESEND_COOLDOWN_MS = 30 * 1000;
 
 // Un code de connexion ne peut pas servir à confirmer une nouvelle adresse, et inversement.
 export type ChallengePurpose = "login" | "email-change";
 
-type Challenge = {
-  purpose: ChallengePurpose;
-  adminId: string;
-  email: string;
-  codeHash: Buffer;
-  expiresAt: number;
-  attempts: number;
-  sentAt: number;
-  // Code en clair, gardé seulement quand il peut être affiché à l'écran (voir canRevealCode).
-  devCode?: string;
-};
-
-const globalForOtp = globalThis as unknown as { otpChallenges?: Map<string, Challenge> };
-const challenges = (globalForOtp.otpChallenges ??= new Map());
-
 function hashCode(challengeId: string, code: string) {
-  return createHmac("sha256", process.env.SESSION_SECRET ?? "").update(`${challengeId}:${code}`).digest();
+  return createHmac("sha256", process.env.SESSION_SECRET ?? "").update(`${challengeId}:${code}`).digest("hex");
 }
 
 function newCode() {
@@ -43,33 +30,34 @@ export function canRevealCode() {
 }
 
 function devCodeFor(code: string) {
-  return canRevealCode() ? code : undefined;
+  return canRevealCode() ? code : null;
 }
 
-function purgeExpired() {
-  const now = Date.now();
-  for (const [id, challenge] of challenges) if (challenge.expiresAt < now) challenges.delete(id);
+async function findActive(id: string) {
+  const challenge = await getDb().otpChallenge.findUnique({ where: { id } });
+  return challenge && challenge.expiresAt.getTime() > Date.now() ? challenge : null;
 }
 
-export function createChallenge(adminId: string, email: string, purpose: ChallengePurpose = "login") {
-  purgeExpired();
+export async function createChallenge(adminId: string, email: string, purpose: ChallengePurpose = "login") {
+  const db = getDb();
+  // Ménage au passage : les codes expirés ne servent plus à rien.
+  await db.otpChallenge.deleteMany({ where: { expiresAt: { lt: new Date() } } });
   const id = randomBytes(16).toString("hex");
   const code = newCode();
-  const now = Date.now();
-  challenges.set(id, { purpose, adminId, email, codeHash: hashCode(id, code), expiresAt: now + OTP_DURATION_MS, attempts: 0, sentAt: now, devCode: devCodeFor(code) });
+  await db.otpChallenge.create({
+    data: { id, adminId, email, purpose, codeHash: hashCode(id, code), expiresAt: new Date(Date.now() + OTP_DURATION_MS), devCode: devCodeFor(code) },
+  });
   return { id, code };
 }
 
-export function getChallengeEmail(id: string) {
-  const challenge = challenges.get(id);
-  return challenge && challenge.expiresAt > Date.now() ? challenge.email : null;
+export async function getChallengeEmail(id: string) {
+  return (await findActive(id))?.email ?? null;
 }
 
 // Renvoie le code en cours, uniquement si canRevealCode() l'autorise.
-export function revealChallengeCode(id: string) {
+export async function revealChallengeCode(id: string) {
   if (!canRevealCode()) return null;
-  const challenge = challenges.get(id);
-  return challenge && challenge.expiresAt > Date.now() ? (challenge.devCode ?? null) : null;
+  return (await findActive(id))?.devCode ?? null;
 }
 
 export type VerifyResult =
@@ -78,44 +66,61 @@ export type VerifyResult =
   | { status: "expired" }
   | { status: "locked" };
 
-export function verifyChallenge(id: string, code: string, purpose: ChallengePurpose = "login"): VerifyResult {
-  const challenge = challenges.get(id);
-  if (!challenge || challenge.purpose !== purpose || challenge.expiresAt < Date.now()) {
-    challenges.delete(id);
+export async function verifyChallenge(id: string, code: string, purpose: ChallengePurpose = "login"): Promise<VerifyResult> {
+  const db = getDb();
+  const challenge = await findActive(id);
+  if (!challenge || challenge.purpose !== purpose) {
+    await db.otpChallenge.deleteMany({ where: { id } });
     return { status: "expired" };
   }
 
-  if (timingSafeEqual(challenge.codeHash, hashCode(id, code))) {
-    challenges.delete(id);
-    return { status: "ok", adminId: challenge.adminId, email: challenge.email };
-  }
-
-  challenge.attempts += 1;
-  if (challenge.attempts >= MAX_ATTEMPTS) {
-    challenges.delete(id);
+  // L'essai est compté avant la comparaison, et seulement s'il en reste : même des essais
+  // envoyés en parallèle ne peuvent pas dépasser MAX_ATTEMPTS.
+  const counted = await db.otpChallenge.updateMany({ where: { id, attempts: { lt: MAX_ATTEMPTS } }, data: { attempts: { increment: 1 } } });
+  if (counted.count === 0) {
+    await db.otpChallenge.deleteMany({ where: { id } });
     return { status: "locked" };
   }
-  return { status: "invalid", attemptsLeft: MAX_ATTEMPTS - challenge.attempts };
+
+  if (timingSafeEqual(Buffer.from(challenge.codeHash, "hex"), Buffer.from(hashCode(id, code), "hex"))) {
+    // deleteMany renvoie 0 si une requête parallèle a déjà utilisé ce code : un code ne sert qu'une fois.
+    const used = await db.otpChallenge.deleteMany({ where: { id } });
+    return used.count === 1 ? { status: "ok", adminId: challenge.adminId, email: challenge.email } : { status: "expired" };
+  }
+
+  const attempts = challenge.attempts + 1;
+  if (attempts >= MAX_ATTEMPTS) {
+    await db.otpChallenge.deleteMany({ where: { id } });
+    return { status: "locked" };
+  }
+  return { status: "invalid", attemptsLeft: MAX_ATTEMPTS - attempts };
 }
 
-export type ResendResult = { status: "ok"; email: string; code: string } | { status: "wait"; seconds: number } | { status: "expired" };
+export type ResendResult =
+  | { status: "ok"; email: string; code: string }
+  | { status: "wait"; seconds: number }
+  | { status: "limit" }
+  | { status: "expired" };
 
 // Émet un nouveau code pour la même vérification ; les codes précédents ne marchent plus.
-export function renewChallenge(id: string): ResendResult {
-  const challenge = challenges.get(id);
-  if (!challenge || challenge.expiresAt < Date.now()) return { status: "expired" };
+export async function renewChallenge(id: string): Promise<ResendResult> {
+  const challenge = await findActive(id);
+  if (!challenge) return { status: "expired" };
+  if (challenge.resendCount >= MAX_RESENDS) return { status: "limit" };
 
-  const waitMs = challenge.sentAt + RESEND_COOLDOWN_MS - Date.now();
+  const waitMs = challenge.sentAt.getTime() + RESEND_COOLDOWN_MS - Date.now();
   if (waitMs > 0) return { status: "wait", seconds: Math.ceil(waitMs / 1000) };
 
   const code = newCode();
-  challenge.codeHash = hashCode(id, code);
-  challenge.devCode = devCodeFor(code);
-  challenge.sentAt = Date.now();
-  challenge.attempts = 0;
+  // La condition sur resendCount empêche deux renvois simultanés de passer tous les deux.
+  const renewed = await getDb().otpChallenge.updateMany({
+    where: { id, resendCount: challenge.resendCount },
+    data: { codeHash: hashCode(id, code), devCode: devCodeFor(code), sentAt: new Date(), resendCount: { increment: 1 } },
+  });
+  if (renewed.count === 0) return { status: "wait", seconds: Math.ceil(RESEND_COOLDOWN_MS / 1000) };
   return { status: "ok", email: challenge.email, code };
 }
 
-export function cancelChallenge(id: string) {
-  challenges.delete(id);
+export async function cancelChallenge(id: string) {
+  await getDb().otpChallenge.deleteMany({ where: { id } });
 }

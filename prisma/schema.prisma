@@ -26,6 +26,8 @@ model Admin {
   // Photo réduite à 256 × 256 px dans le navigateur, stockée en data URL (quelques dizaines de Ko).
   avatar       String?
   role         AdminRole @default(ADMIN)
+  // Augmente à la déconnexion et au changement de mot de passe : les sessions déjà ouvertes ne valent plus rien.
+  sessionVersion Int     @default(0)
   // Un compte désactivé ne peut plus se connecter et ses sessions sont coupées.
   disabledAt   DateTime?
   lastLoginAt  DateTime?
@@ -60,4 +62,35 @@ model ContactRequest {
 
   @@index([createdAt])
   @@map("contact_requests")
+}
+
+// Code à 6 chiffres envoyé par e-mail (connexion ou changement d'adresse). En base plutôt qu'en
+// mémoire : sur Vercel, la demande et la vérification du code passent souvent par des serveurs différents.
+model OtpChallenge {
+  id          String   @id
+  // Pas de clé étrangère : le compte du .env n'a pas de ligne dans la table des administrateurs.
+  adminId     String
+  email       String
+  purpose     String
+  codeHash    String
+  attempts    Int      @default(0)
+  resendCount Int      @default(0)
+  sentAt      DateTime @default(now())
+  expiresAt   DateTime
+  // Code en clair, seulement en développement sans serveur d'envoi (voir canRevealCode).
+  devCode     String?
+
+  @@index([expiresAt])
+  @@map("otp_challenges")
+}
+
+// Une ligne par tentative comptée (échec de connexion, envoi du formulaire de contact).
+// Partagée par tous les serveurs, contrairement à un compteur en mémoire.
+model RateLimitHit {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
+  @@map("rate_limit_hits")
 }
