@@ -60,3 +60,29 @@ export function openRequest(id: string) {
 export function getRequest(id: string) {
   return withDatabase<ContactRequest | null>(() => getDb().contactRequest.findUnique({ where: { id } }));
 }
+
+export type RequestPulse = {
+  // Change dès qu'une demande arrive, est lue (ou remise en non lue) ou supprimée.
+  signature: string;
+  unread: number;
+  latest: { id: string; name: string; subject: string; createdAt: string } | null;
+};
+
+// Instantané très léger, interrogé régulièrement par le panneau pour détecter les nouvelles demandes.
+export function getRequestPulse() {
+  return withDatabase<RequestPulse>(async () => {
+    const db = getDb();
+    const [total, unread, latest] = await Promise.all([
+      db.contactRequest.count(),
+      db.contactRequest.count({ where: { readAt: null } }),
+      db.contactRequest.findFirst({ orderBy: { createdAt: "desc" }, select: { id: true, firstName: true, lastName: true, subject: true, createdAt: true } }),
+    ]);
+    return {
+      signature: [total, unread, latest?.id ?? ""].join(":"),
+      unread,
+      latest: latest
+        ? { id: latest.id, name: `${latest.firstName} ${latest.lastName}`.trim(), subject: latest.subject, createdAt: latest.createdAt.toISOString() }
+        : null,
+    };
+  });
+}

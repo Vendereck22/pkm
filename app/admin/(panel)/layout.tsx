@@ -6,8 +6,9 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { requireAdmin } from "@/lib/auth";
-import { getRequestStats } from "@/lib/contact-requests";
+import { getRequestPulse, getRequestStats } from "@/lib/contact-requests";
 import { AdminSidebar } from "./admin-sidebar";
+import { RequestWatcher } from "./request-watcher";
 
 export const metadata: Metadata = {
   title: "Panneau d’administration | Cabinet PKM",
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminPanelLayout({ children }: { children: React.ReactNode }) {
-  const [admin, stats, cookieStore] = await Promise.all([requireAdmin(), getRequestStats(), cookies()]);
+  const [admin, stats, pulse, cookieStore] = await Promise.all([requireAdmin(), getRequestStats(), getRequestPulse(), cookies()]);
   // Même cookie que celui écrit par la sidebar shadcn : l'état replié survit aux rechargements.
   const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false";
 
@@ -34,6 +35,7 @@ export default async function AdminPanelLayout({ children }: { children: React.R
           </header>
           <div className="mx-auto w-full max-w-[1160px] px-4 py-8 sm:px-6 lg:py-10">{children}</div>
         </SidebarInset>
+        <RequestWatcher initial={pulse.ok ? pulse.data : null} />
       </SidebarProvider>
     </TooltipProvider>
   );
