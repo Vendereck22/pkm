@@ -18,7 +18,9 @@ type EditableRequest = {
   id: string;
   firstName: string;
   lastName: string;
+  company: string | null;
   position: string | null;
+  country: string | null;
   email: string;
   phone: string | null;
   subject: string;
@@ -41,8 +43,16 @@ export function EditRequestForm({ request }: { request: EditableRequest }) {
           <Input id="lastName" name="lastName" maxLength={80} defaultValue={request.lastName} className={fieldClass} />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="position" className={labelClass}>Poste</Label>
+          <Label htmlFor="company" className={labelClass}>Entreprise</Label>
+          <Input id="company" name="company" maxLength={160} defaultValue={request.company ?? ""} className={fieldClass} />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="position" className={labelClass}>Fonction</Label>
           <Input id="position" name="position" maxLength={120} defaultValue={request.position ?? ""} className={fieldClass} />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="country" className={labelClass}>Pays</Label>
+          <Input id="country" name="country" maxLength={80} defaultValue={request.country ?? ""} className={fieldClass} />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="phone" className={labelClass}>Téléphone</Label>

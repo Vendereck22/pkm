@@ -45,7 +45,10 @@ model ContactRequest {
   id        String    @id @default(cuid())
   firstName String
   lastName  String
+  company   String?
+  // « Fonction » sur le site.
   position  String?
+  country   String?
   email     String
   phone     String?
   subject   String

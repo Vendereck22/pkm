@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Briefcase, Mail, Pencil, Phone } from "lucide-react";
+import { ArrowLeft, Briefcase, Building2, Globe, Mail, Pencil, Phone } from "lucide-react";
 import { openRequest } from "@/lib/contact-requests";
 import { DatabaseNotice, PageHeading, SubjectBadge, formatDate } from "../../panel-ui";
 import { DeleteRequestButton } from "../request-actions";
@@ -29,7 +29,9 @@ export default async function AdminRequestPage({ params }: PageProps<"/admin/dem
   const contactRows = [
     { icon: Mail, label: "E-mail", value: request.email, href: `mailto:${request.email}` },
     { icon: Phone, label: "Téléphone", value: request.phone, href: request.phone ? `tel:${request.phone}` : undefined },
-    { icon: Briefcase, label: "Poste", value: request.position },
+    { icon: Building2, label: "Entreprise", value: request.company },
+    { icon: Briefcase, label: "Fonction", value: request.position },
+    { icon: Globe, label: "Pays", value: request.country },
   ];
 
   return (

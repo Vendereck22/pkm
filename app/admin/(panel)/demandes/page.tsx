@@ -60,7 +60,11 @@ export default async function AdminRequestsPage({ searchParams }: PageProps<"/ad
                       <Link href={href} className={`block text-sm no-underline text-[#233d36] hover:underline dark:text-[#e0e9e3] ${request.readAt ? "" : "font-semibold"}`}>
                         {request.firstName} {request.lastName}
                       </Link>
-                      {request.position && <span className="text-xs text-[#63746c] dark:text-[#a9bdb4]">{request.position}</span>}
+                      {(request.position || request.company) && (
+                        <span className="text-xs text-[#63746c] dark:text-[#a9bdb4]">
+                          {[request.position, request.company].filter(Boolean).join(" · ")}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="text-xs text-[#354b43] dark:text-[#c9d8d0]">
                       <a href={`mailto:${request.email}`} className="block text-inherit">{request.email}</a>

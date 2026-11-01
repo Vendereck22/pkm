@@ -11,7 +11,7 @@ export type EditRequestState = { error?: string } | undefined;
 
 const NOT_FOUND = "Cette demande n’existe plus : elle a peut-être été supprimée.";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const LIMITS = { firstName: 80, lastName: 80, position: 120, email: 254, phone: 40, message: 5000 };
+const LIMITS = { firstName: 80, lastName: 80, company: 160, position: 120, country: 80, email: 254, phone: 40, message: 5000 };
 
 // Le menu, la vue d'ensemble et les listes affichent des compteurs : tout le panneau est rafraîchi.
 function refreshPanel() {
@@ -25,7 +25,9 @@ export async function updateContactRequest(id: string, _state: EditRequestState,
   const data = {
     firstName: read("firstName"),
     lastName: read("lastName"),
+    company: read("company"),
     position: read("position"),
+    country: read("country"),
     email: read("email").toLowerCase(),
     phone: read("phone"),
     subject: read("subject"),
@@ -49,7 +51,9 @@ export async function updateContactRequest(id: string, _state: EditRequestState,
       where: { id },
       data: {
         ...data,
+        company: data.company || null,
         position: data.position || null,
+        country: data.country || null,
         phone: data.phone || null,
         // Case cochée : la demande repasse en « non lue ». Sinon, on garde la date de lecture d'origine.
         readAt: formData.get("unread") === "on" ? null : (current.readAt ?? new Date()),

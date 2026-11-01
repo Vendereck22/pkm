@@ -12,7 +12,7 @@ export type ContactFormState =
   | { status: "error"; message: string; values: Record<string, string> }
   | undefined;
 
-const LIMITS = { name: 160, email: 254, phone: 40, message: 5000 };
+const LIMITS = { name: 160, email: 254, phone: 40, company: 160, position: 120, country: 80, message: 5000 };
 const MIN_MESSAGE_LENGTH = 10;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -48,6 +48,9 @@ export async function submitContactRequest(_state: ContactFormState, formData: F
     name: read("name").replace(/\s+/g, " "),
     email: read("email").toLowerCase(),
     phone: read("phone"),
+    company: read("company"),
+    position: read("position"),
+    country: read("country"),
     subject: read("subject"),
     message: read("message"),
   };
@@ -75,6 +78,9 @@ export async function submitContactRequest(_state: ContactFormState, formData: F
         ...splitFullName(values.name),
         email: values.email,
         phone: values.phone || null,
+        company: values.company || null,
+        position: values.position || null,
+        country: values.country || null,
         subject: values.subject,
         message: values.message,
       },
