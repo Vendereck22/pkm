@@ -70,7 +70,12 @@ export default async function AdminRequestsPage({ searchParams }: PageProps<"/ad
                       <a href={`mailto:${request.email}`} className="block text-inherit">{request.email}</a>
                       {request.phone && <a href={`tel:${request.phone}`} className="text-inherit no-underline">{request.phone}</a>}
                     </TableCell>
-                    <TableCell><SubjectBadge subject={request.subject} /></TableCell>
+                    <TableCell>
+                      <SubjectBadge subject={request.subject} />
+                      {request.subjectDetail && (
+                        <span className="mt-1 block max-w-[200px] truncate text-xs text-[#63746c] dark:text-[#a9bdb4]">{request.subjectDetail}</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right text-xs text-[#63746c] dark:text-[#a9bdb4]">{formatDate(request.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <RequestRowActions id={request.id} name={`${request.firstName} ${request.lastName}`.trim()} />

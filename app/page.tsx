@@ -42,7 +42,7 @@ const french: Record<string, string> = {
   "Lawyer, mining and quarry agent and trademark and intellectual property agent, he founded Cabinet PKM with offices in Lubumbashi and Kinshasa.": "Avocat, mandataire en mines et carrières et mandataire en marques et propriété intellectuelle, il a fondé le Cabinet PKM, présent à Lubumbashi et à Kinshasa.", "His practice connects business law to two areas that matter greatly in the DRC: mineral resources and brand value.": "Sa pratique relie le droit des affaires à deux enjeux majeurs en RDC : les ressources minérales et la valeur des marques.", "Recognition.": "Distinction.", "Pierre Kasongo is ranked in the Chambers Global Guide 2025 for general business law in the DRC (Band 2).": "Pierre Kasongo figure dans le Chambers Global Guide 2025 en droit général des affaires en RDC (Band 2).",
   "Local presence": "Ancrage local", "Two offices, one team": "Deux bureaux, une équipe", Kinshasa: "Kinshasa", Lubumbashi: "Lubumbashi", "Administrative and judicial seat; courts, ministries and institutional partners.": "Siège administratif et judiciaire ; tribunaux, ministères et partenaires institutionnels.", "In the heart of the mining province: titles, operators and subcontractors of Haut-Katanga.": "Au cœur de la province minière : titres, opérateurs et sous-traitants du Haut-Katanga.",
   "Good to know": "Bon à savoir", "Frequently asked questions": "Questions fréquentes", "Why register a trademark in the DRC?": "Pourquoi enregistrer une marque en RDC\u202f?", "Registration helps establish rights to your brand and gives you legal tools to oppose unauthorised use and counterfeiting.": "L’enregistrement établit vos droits sur votre marque et vous donne des moyens juridiques pour vous opposer aux usages non autorisés et à la contrefaçon.", "How are your fees calculated?": "Comment vos honoraires sont-ils calculés\u202f?", "Fees depend on the nature, complexity and urgency of the matter. We discuss the scope and fee arrangements with you before starting work.": "Les honoraires dépendent de la nature, de la complexité et de l’urgence du dossier. Nous convenons avec vous de la mission et des honoraires avant de commencer.", "Do you act for foreign clients?": "Travaillez-vous pour des clients étrangers\u202f?", "Yes. We advise foreign investors and companies entering the DRC, including on local structures, contracts, compliance and disputes.": "Oui. Nous conseillons les investisseurs et entreprises étrangers qui s’implantent en RDC, notamment sur les structures locales, les contrats, la conformité et les litiges.", "Are my exchanges with the firm confidential?": "Mes échanges avec le cabinet sont-ils confidentiels\u202f?", "Professional secrecy and confidentiality apply to our work in accordance with the rules governing the profession.": "Le secret professionnel et la confidentialité s’appliquent à notre travail conformément aux règles de la profession.",
-  "Let's talk about your project": "Parlons de votre projet", "Let's discuss your case": "Parlons de votre dossier", "Describe your need in a few lines. The firm will get back to you to arrange a first conversation.": "Décrivez votre besoin en quelques lignes. Le cabinet vous recontactera pour organiser un premier échange.", "Offices in Kinshasa and Lubumbashi": "Bureaux à Kinshasa et Lubumbashi", "Reply within two working days": "Réponse sous deux jours ouvrés", "Exchanges covered by professional secrecy": "Échanges couverts par le secret professionnel", "Full name": "Nom complet", Phone: "Téléphone", Company: "Entreprise", Position: "Fonction", Country: "Pays", "Email address": "Adresse e-mail", Subject: "Sujet", "Business law / litigation": "Droit des affaires / contentieux", "Trademarks and intellectual property": "Marques et propriété intellectuelle", "Other request": "Autre demande", "Your message": "Votre message", "Send my request": "Envoyer ma demande", "Your request is sent directly to the firm. It is not a legal consultation.": "Votre demande est transmise directement au cabinet. Elle ne constitue pas une consultation juridique.",
+  "Let's talk about your project": "Parlons de votre projet", "Let's discuss your case": "Parlons de votre dossier", "Describe your need in a few lines. The firm will get back to you to arrange a first conversation.": "Décrivez votre besoin en quelques lignes. Le cabinet vous recontactera pour organiser un premier échange.", "Offices in Kinshasa and Lubumbashi": "Bureaux à Kinshasa et Lubumbashi", "Reply within two working days": "Réponse sous deux jours ouvrés", "Exchanges covered by professional secrecy": "Échanges couverts par le secret professionnel", "Full name": "Nom complet", Phone: "Téléphone", Company: "Entreprise", Position: "Fonction", Country: "Pays", "Choose…": "Choisir…", "Private individual": "Particulier", "Executive / manager": "Dirigeant / gérant", "Lawyer / head of legal": "Juriste / responsable juridique", "Manager / employee": "Cadre / employé", "Other position": "Autre fonction", "Your position": "Votre fonction", "E.g. Consultant, student, association chair": "Ex. Consultant, étudiant, président d’association", "Specify your request": "Précisez votre demande", "E.g. Labour law, real estate, family matter": "Ex. Droit du travail, immobilier, affaire familiale", "Please specify your request.": "Précisez votre demande.", "Please specify your position.": "Précisez votre fonction.", "Please choose a position.": "Choisissez une fonction dans la liste.", "Email address": "Adresse e-mail", Subject: "Sujet", "Business law / litigation": "Droit des affaires / contentieux", "Trademarks and intellectual property": "Marques et propriété intellectuelle", "Other request": "Autre demande", "Your message": "Votre message", "Send my request": "Envoyer ma demande", "Your request is sent directly to the firm. It is not a legal consultation.": "Votre demande est transmise directement au cabinet. Elle ne constitue pas une consultation juridique.",
   "Cabinet PKM": "Cabinet PKM", "Lawyers, mining and quarry agent, trademark and intellectual property agent.": "Avocats, mandataires en mines et carrières, marques et propriété intellectuelle.", "Kinshasa and Lubumbashi, Democratic Republic of the Congo.": "Kinshasa et Lubumbashi, République démocratique du Congo.", Contact: "Contact", "© 2026 Cabinet PKM. The information on this site is general in nature and does not replace personalised legal advice.": "© 2026 Cabinet PKM. Les informations de ce site sont générales et ne remplacent pas un conseil juridique personnalisé.", "Any questions?": "Une question\u202f?",
   "Sending…": "Envoi en cours…", "Message sent successfully": "Message envoyé avec succès", "Thank you, we will get back to you very soon.": "Merci, nous vous reviendrons très bientôt.", "Close": "Fermer",
   "Please enter your full name.": "Indiquez votre nom complet.", "Please enter a valid email address.": "Indiquez une adresse e-mail valide.", "Please choose a subject.": "Choisissez un sujet.", "Your message is too short: please describe your request in a few words.": "Votre message est trop court : décrivez votre demande en quelques mots.", "One of the fields is too long.": "L’un des champs est trop long.", "You have sent several requests in a short time. Please wait a few minutes before sending a new one.": "Vous avez envoyé plusieurs demandes en peu de temps. Patientez quelques minutes avant d’en envoyer une nouvelle.", "Your request could not be sent because of a technical problem. Your text has been kept: please try again in a few minutes.": "Votre demande n’a pas pu être envoyée à cause d’un problème technique. Votre texte a été conservé : réessayez dans quelques minutes.",
@@ -59,7 +59,7 @@ const sameInBothLanguages = new Set(["PKM", "FR", "EN", "Français", "English", 
 const reportedMissing = new Set<string>();
 
 // Attributs lus par les lecteurs d'écran ou affichés au survol, traduits comme le texte.
-const translatedProps = ["aria-label", "title", "alt"] as const;
+const translatedProps = ["aria-label", "title", "alt", "placeholder"] as const;
 
 function translate(text: string, language: "en" | "fr"): string {
   if (language === "en") return text;
@@ -112,6 +112,14 @@ export default function Home() {
   // Après un envoi réussi, une nouvelle clé recrée le formulaire vide ; après une erreur, on garde la saisie.
   const contactFormKey = contactState?.status === "success" ? contactState.sentAt : "contact-form";
   const contactValues = contactState?.status === "error" ? contactState.values : undefined;
+  // Choix du sujet et de la fonction, qui font apparaître des champs. Remis à zéro avec le formulaire.
+  const [contactChoices, setContactChoices] = useState<{ formKey: string | number; subject?: string; positionType?: string }>({ formKey: "contact-form" });
+  const choices = contactChoices.formKey === contactFormKey ? contactChoices : { formKey: contactFormKey };
+  const selectedSubject = choices.subject ?? contactValues?.subject ?? "business";
+  const selectedPosition = choices.positionType ?? contactValues?.positionType ?? "";
+  function chooseContactOption(field: "subject" | "positionType", value: string) {
+    setContactChoices({ ...choices, formKey: contactFormKey, [field]: value });
+  }
   // La fenêtre de confirmation s'ouvre à chaque nouvel envoi réussi, jusqu'à ce que le visiteur la ferme.
   const [dismissedSentAt, setDismissedSentAt] = useState<number | null>(null);
   const successDialogOpen = contactState?.status === "success" && dismissedSentAt !== contactState.sentAt;
@@ -513,25 +521,47 @@ export default function Home() {
                 <input name="country" autoComplete="country-name" maxLength={80} defaultValue={contactValues?.country} />
               </label>
             </div>
-            <div className="form-row">
-              <label>
-                <span>Company</span>
-                <input name="company" autoComplete="organization" maxLength={160} defaultValue={contactValues?.company} />
-              </label>
+            {/* Un particulier n'a ni entreprise ni fonction à préciser : seul le choix « Particulier » reste. */}
+            <div className={selectedPosition === "individual" ? undefined : "form-row"}>
               <label>
                 <span>Position</span>
-                <input name="position" autoComplete="organization-title" maxLength={120} defaultValue={contactValues?.position} />
+                <select name="positionType" defaultValue={selectedPosition} onChange={(event) => chooseContactOption("positionType", event.target.value)}>
+                  <option value="">Choose…</option>
+                  <option value="individual">Private individual</option>
+                  <option value="executive">Executive / manager</option>
+                  <option value="legal">Lawyer / head of legal</option>
+                  <option value="staff">Manager / employee</option>
+                  <option value="other">Other position</option>
+                </select>
               </label>
+              {selectedPosition !== "individual" && (
+                <label>
+                  <span>Company</span>
+                  <input name="company" autoComplete="organization" maxLength={160} defaultValue={contactValues?.company} />
+                </label>
+              )}
             </div>
+            {selectedPosition === "other" && (
+              <label>
+                <span>Your position</span>
+                <input name="positionOther" autoComplete="organization-title" required maxLength={120} placeholder="E.g. Consultant, student, association chair" defaultValue={contactValues?.positionOther} />
+              </label>
+            )}
             <label>
               <span>Subject</span>
-              <select name="subject" defaultValue={contactValues?.subject ?? "business"}>
+              <select name="subject" defaultValue={selectedSubject} onChange={(event) => chooseContactOption("subject", event.target.value)}>
                 <option value="business">Business law / litigation</option>
                 <option value="mining">Mining titles and quarries</option>
                 <option value="trademark">Trademarks and intellectual property</option>
                 <option value="other">Other request</option>
               </select>
             </label>
+            {selectedSubject === "other" && (
+              <label>
+                <span>Specify your request</span>
+                <input name="subjectDetail" required maxLength={160} placeholder="E.g. Labour law, real estate, family matter" defaultValue={contactValues?.subjectDetail} />
+              </label>
+            )}
             <label>
               <span>Your message</span>
               <textarea name="message" rows={5} required minLength={10} maxLength={5000} defaultValue={contactValues?.message} />

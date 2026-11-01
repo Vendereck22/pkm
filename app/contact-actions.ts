@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getDb, isDatabaseConfigured } from "@/lib/db";
+import { isContactPosition, positionLabel } from "@/lib/contact-positions";
 import { isContactSubject } from "@/lib/contact-subjects";
 
 // Les messages sont en anglais : la page d'accueil les traduit avec son dictionnaire, comme le reste du texte.
@@ -12,7 +13,7 @@ export type ContactFormState =
   | { status: "error"; message: string; values: Record<string, string> }
   | undefined;
 
-const LIMITS = { name: 160, email: 254, phone: 40, company: 160, position: 120, country: 80, message: 5000 };
+const LIMITS = { name: 160, email: 254, phone: 40, company: 160, positionOther: 120, country: 80, subjectDetail: 160, message: 5000 };
 const MIN_MESSAGE_LENGTH = 10;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -42,6 +43,12 @@ function splitFullName(fullName: string) {
   return { firstName, lastName: rest.join(" ") };
 }
 
+// La base garde le libellé lisible, ou la fonction saisie à la main pour « Autre fonction ».
+function positionFor(positionType: string, positionOther: string) {
+  if (positionType === "other") return positionOther;
+  return isContactPosition(positionType) ? positionLabel(positionType) : null;
+}
+
 export async function submitContactRequest(_state: ContactFormState, formData: FormData): Promise<ContactFormState> {
   const read = (name: string) => String(formData.get(name) ?? "").trim();
   const values = {
@@ -49,9 +56,11 @@ export async function submitContactRequest(_state: ContactFormState, formData: F
     email: read("email").toLowerCase(),
     phone: read("phone"),
     company: read("company"),
-    position: read("position"),
+    positionType: read("positionType"),
+    positionOther: read("positionOther"),
     country: read("country"),
     subject: read("subject"),
+    subjectDetail: read("subjectDetail"),
     message: read("message"),
   };
   const fail = (message: string): ContactFormState => ({ status: "error", message, values });
@@ -62,6 +71,9 @@ export async function submitContactRequest(_state: ContactFormState, formData: F
   if (!values.name) return fail("Please enter your full name.");
   if (!EMAIL_PATTERN.test(values.email)) return fail("Please enter a valid email address.");
   if (!isContactSubject(values.subject)) return fail("Please choose a subject.");
+  if (values.subject === "other" && !values.subjectDetail) return fail("Please specify your request.");
+  if (values.positionType && !isContactPosition(values.positionType)) return fail("Please choose a position.");
+  if (values.positionType === "other" && !values.positionOther) return fail("Please specify your position.");
   if (values.message.length < MIN_MESSAGE_LENGTH) return fail("Your message is too short: please describe your request in a few words.");
   for (const [field, max] of Object.entries(LIMITS)) {
     if (values[field as keyof typeof LIMITS].length > max) return fail("One of the fields is too long.");
@@ -78,10 +90,12 @@ export async function submitContactRequest(_state: ContactFormState, formData: F
         ...splitFullName(values.name),
         email: values.email,
         phone: values.phone || null,
-        company: values.company || null,
-        position: values.position || null,
+        // Un particulier n'a pas d'entreprise, même si le champ avait été rempli avant de changer de choix.
+        company: values.positionType === "individual" ? null : values.company || null,
+        position: positionFor(values.positionType, values.positionOther),
         country: values.country || null,
         subject: values.subject,
+        subjectDetail: values.subject === "other" ? values.subjectDetail : null,
         message: values.message,
       },
     });

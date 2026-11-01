@@ -52,6 +52,8 @@ model ContactRequest {
   email     String
   phone     String?
   subject   String
+  // Précision saisie par le visiteur quand il choisit « Autre demande ».
+  subjectDetail String?
   message   String
   readAt    DateTime?
   createdAt DateTime  @default(now())

@@ -45,6 +45,11 @@ export default async function AdminRequestPage({ params }: PageProps<"/admin/dem
             <h2 className="text-[11px] font-semibold tracking-[.1em] text-[#63746c] uppercase dark:text-[#a9bdb4]">Message</h2>
             <SubjectBadge subject={request.subject} />
           </div>
+          {request.subjectDetail && (
+            <p className="mb-4 text-xs text-[#63746c] dark:text-[#a9bdb4]">
+              Précision du visiteur : <span className="font-semibold text-[#233d36] dark:text-[#e0e9e3]">{request.subjectDetail}</span>
+            </p>
+          )}
           <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#233d36] dark:text-[#e0e9e3]">{request.message}</p>
         </article>
 

@@ -24,6 +24,7 @@ type EditableRequest = {
   email: string;
   phone: string | null;
   subject: string;
+  subjectDetail: string | null;
   message: string;
   readAt: Date | null;
 };
@@ -70,6 +71,11 @@ export function EditRequestForm({ request }: { request: EditableRequest }) {
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="grid gap-2">
+        <Label htmlFor="subjectDetail" className={labelClass}>Précision du sujet</Label>
+        <Input id="subjectDetail" name="subjectDetail" maxLength={160} defaultValue={request.subjectDetail ?? ""} placeholder="Pour « Autres demandes » : de quoi s’agit-il ?" className={fieldClass} />
       </div>
 
       <div className="grid gap-2">
